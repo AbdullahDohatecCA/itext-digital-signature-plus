@@ -130,11 +130,14 @@ public class Signature {
                             String alias = (String) keystoreTable.getValueAt(selectedRow, 0);
                             System.out.println(alias);
                             setAlias(alias);
+
                             sign(
                                     pdfFilePath,
                                     signatureImagePath,
                                     alias
                             );
+
+                            //show signature operation completion dialog
                             JOptionPane.showMessageDialog(
                                     null,
                                     "Signature Applied",
@@ -175,24 +178,6 @@ public class Signature {
             String keyStoreAlias
     ) {
         try {
-            JFrame signatureOperationProgressWindow = new JFrame();
-            signatureOperationProgressWindow.setTitle("Signature Status");
-            signatureOperationProgressWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            signatureOperationProgressWindow.setLayout(new BorderLayout());
-            signatureOperationProgressWindow.setSize(200,250);
-
-            JPanel showMessagePanel = new JPanel();
-            showMessagePanel.setBackground(new Color(0xB3B3B3));
-            JLabel messageLabel = new JLabel();
-            ImageIcon loaderIcon = new ImageIcon("src/main/resources/Loader.gif");
-            messageLabel.setIcon(loaderIcon);
-            messageLabel.setText("Signature operation in progress.....");
-            messageLabel.setIconTextGap(20);
-            showMessagePanel.add(messageLabel);
-            signatureOperationProgressWindow.add(showMessagePanel);
-            signatureOperationProgressWindow.setVisible(true);
-            signatureOperationProgressWindow.setLocationRelativeTo(null);
-
             //Load private key and certificate from keystore
             PrivateKey pk = (PrivateKey) ks.getKey(keyStoreAlias,null);
             Certificate[] chain = ks.getCertificateChain(keyStoreAlias);
@@ -265,7 +250,7 @@ public class Signature {
             );
 
             fos.close();
-            signatureOperationProgressWindow.dispose();
+            //signatureOperationProgressWindow.dispose();
         }
         catch (Exception ex) {
             JOptionPane.showMessageDialog(
