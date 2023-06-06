@@ -218,7 +218,7 @@ public class Signature {
             );
 
             //Create signature appearence
-            Rectangle rect = new Rectangle(30,30,200,100);
+            Rectangle rect = new Rectangle(200,100);
             ImageData signatureImage = ImageDataFactory.create(signatureImagePath);
             PdfSignatureAppearance appearance = signer.getSignatureAppearance();
             appearance.setReason("Test_Reason")
@@ -243,14 +243,13 @@ public class Signature {
                     pks,
                     chain,
                     crlList,
-                    ocspClient,
+                    null,
                     tsaClient,
                     0,
                     PdfSigner.CryptoStandard.CMS
             );
 
             fos.close();
-            //signatureOperationProgressWindow.dispose();
         }
         catch (Exception ex) {
             JOptionPane.showMessageDialog(

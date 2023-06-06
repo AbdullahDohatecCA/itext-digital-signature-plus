@@ -18,4 +18,8 @@ public class DisplayPdf {
         controller.openDocument(filePath);
         controller.setToolBarVisible(false);
     }
+
+    public void closePdf() {
+        controller.closeDocument();
+    }
 }

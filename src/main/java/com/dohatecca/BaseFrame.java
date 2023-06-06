@@ -1,12 +1,14 @@
 package com.dohatecca;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
@@ -99,6 +101,15 @@ public class BaseFrame extends JFrame implements ActionListener, MouseListener {
         selectImage.setFont(new Font("Nunito",Font.PLAIN,18));
         selectImage.addActionListener(event -> {
                     JFileChooser fileChooser = new JFileChooser();
+                    FileNameExtensionFilter imageFilter = new FileNameExtensionFilter(
+                            "Image files",
+                            "jpg",
+                            "png",
+                            "gif",
+                            "bmp"
+                    );
+                    fileChooser.setFileFilter(imageFilter);
+
                     int isSelected = fileChooser.showOpenDialog(null);
                     if(isSelected == JFileChooser.APPROVE_OPTION) {
                         signatureImageFilePath = fileChooser.getSelectedFile().getAbsolutePath();
@@ -122,7 +133,6 @@ public class BaseFrame extends JFrame implements ActionListener, MouseListener {
                         previewImageLabel.setIcon(previewImage);
                         previewImageText.setText("You have selected this image.");
                         previewImageText.setForeground(new Color(0x51F851));
-                        previewImageText.repaint();
                     }
                 });
         selectImage.addMouseListener(this);
@@ -146,7 +156,7 @@ public class BaseFrame extends JFrame implements ActionListener, MouseListener {
             else if(signatureImageFilePath == null || signatureImageFilePath.equals("")) {
                 JOptionPane.showMessageDialog(
                         BaseFrame.this,
-                        "Please selected a signature image.",
+                        "Please select a signature image.",
                         "Signature Image Warning",
                         JOptionPane.WARNING_MESSAGE
                 );
@@ -170,16 +180,62 @@ public class BaseFrame extends JFrame implements ActionListener, MouseListener {
         save.setIcon(saveIcon);
         save.setFont(new Font("Nunito",Font.PLAIN,18));
         save.addActionListener(event -> {
-            JFileChooser saveLocationSelector = new JFileChooser();
-            int isSelected = saveLocationSelector.showSaveDialog(null);
-            if(isSelected == JFileChooser.APPROVE_OPTION){
-                String saveLocation = saveLocationSelector.getSelectedFile().getAbsolutePath();
-                System.out.println(saveLocation);
-                File saveFile = new File(saveLocation);
-                try {
-                    FileOutputStream fos = new FileOutputStream(saveFile);
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
+            if(selectedPdfFilePath == null || selectedPdfFilePath.equals("")) {
+                JOptionPane.showMessageDialog(
+                        BaseFrame.this,
+                        "Please open a PDF document first.",
+                        "Document File Warning",
+                        JOptionPane.WARNING_MESSAGE
+                );
+            }
+            else if (signatureImageFilePath == null || signatureImageFilePath.equals("")) {
+                JOptionPane.showMessageDialog(
+                        BaseFrame.this,
+                        "Please select a signature image.",
+                        "Signature Image Warning",
+                        JOptionPane.WARNING_MESSAGE
+                );
+            }
+            else {
+                JFileChooser saveLocationSelector = new JFileChooser();
+                FileNameExtensionFilter pdfFilter = new FileNameExtensionFilter("PDF files", "pdf");
+                saveLocationSelector.setFileFilter(pdfFilter);
+                int isSelected = saveLocationSelector.showSaveDialog(null);
+                if(isSelected == JFileChooser.APPROVE_OPTION){
+                    String saveLocation = saveLocationSelector.getSelectedFile().getAbsolutePath();
+                    File saveFile = new File(saveLocation);
+                    File signedFile = new File("C:/DohatecCA_DST2/temp.pdf");
+                    if(!saveLocation.endsWith(".pdf")){
+                        saveLocation = saveLocation+".pdf";
+                    }
+                    System.out.println(saveLocation);
+                    try {
+                        FileInputStream fis = new FileInputStream(signedFile);
+                        FileOutputStream fos = new FileOutputStream(saveLocation);
+
+                        int readBytes;
+                        while((readBytes=fis.read()) != -1){
+                            fos.write(readBytes);
+                        }
+
+                        fis.close();
+                        fos.close();
+
+                        selectedPdfFilePath = null;
+                        signatureImageFilePath = null;
+                        displayPdf.closePdf();
+                        previewImageLabel.setIcon(dummySignatureImage);
+                        previewImageText.setText("Upload your signature image.");
+                        signedFile.delete();
+                    } catch (Exception e) {
+                        JOptionPane.showMessageDialog(
+                                BaseFrame.this,
+                                e.getMessage(),
+                                "File Error",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         });
