@@ -19,6 +19,10 @@ public class DisplayPdf {
         controller.setToolBarVisible(false);
     }
 
+    public int getCurrentPageNumber() {
+        return controller.getCurrentPageNumber();
+    }
+
     public void closePdf() {
         controller.closeDocument();
     }

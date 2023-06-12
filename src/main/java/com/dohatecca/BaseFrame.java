@@ -9,7 +9,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
 public class BaseFrame extends JFrame implements ActionListener, MouseListener {
@@ -83,10 +82,12 @@ public class BaseFrame extends JFrame implements ActionListener, MouseListener {
         open.setIcon(openIcon);
         open.setFont(new Font("Nunito",Font.PLAIN,18));
         open.addActionListener(event -> {
-            JFileChooser fileChooser = new JFileChooser();
-            int isSelected = fileChooser.showOpenDialog(null);
+            JFileChooser pdfFileChooser = new JFileChooser();
+            FileNameExtensionFilter pdfFilter = new FileNameExtensionFilter("PDF files", "pdf");
+            pdfFileChooser.setFileFilter(pdfFilter);
+            int isSelected = pdfFileChooser.showOpenDialog(null);
             if(isSelected == JFileChooser.APPROVE_OPTION) {
-                selectedPdfFilePath = fileChooser.getSelectedFile().getAbsolutePath();
+                selectedPdfFilePath = pdfFileChooser.getSelectedFile().getAbsolutePath();
                 displayPdf.showPdf(selectedPdfFilePath);
             }
         });
@@ -100,7 +101,7 @@ public class BaseFrame extends JFrame implements ActionListener, MouseListener {
         selectImage.setIcon(imageIcon);
         selectImage.setFont(new Font("Nunito",Font.PLAIN,18));
         selectImage.addActionListener(event -> {
-                    JFileChooser fileChooser = new JFileChooser();
+                    JFileChooser imageFileChooser = new JFileChooser();
                     FileNameExtensionFilter imageFilter = new FileNameExtensionFilter(
                             "Image files",
                             "jpg",
@@ -108,11 +109,11 @@ public class BaseFrame extends JFrame implements ActionListener, MouseListener {
                             "gif",
                             "bmp"
                     );
-                    fileChooser.setFileFilter(imageFilter);
+                    imageFileChooser.setFileFilter(imageFilter);
 
-                    int isSelected = fileChooser.showOpenDialog(null);
+                    int isSelected = imageFileChooser.showOpenDialog(null);
                     if(isSelected == JFileChooser.APPROVE_OPTION) {
-                        signatureImageFilePath = fileChooser.getSelectedFile().getAbsolutePath();
+                        signatureImageFilePath = imageFileChooser.getSelectedFile().getAbsolutePath();
                         ImageIcon tempImage = new ImageIcon(signatureImageFilePath);
                         if(tempImage.getIconWidth() > 250) {
                             previewImage = new ImageIcon(
@@ -167,6 +168,7 @@ public class BaseFrame extends JFrame implements ActionListener, MouseListener {
                 signature.initKeyStore();
                 signature.setPdfFilePath(selectedPdfFilePath);
                 signature.setSignatureImagePath(signatureImageFilePath);
+                signature.setPageNumber(displayPdf.getCurrentPageNumber()+1);
                 signature.showKeyStoreTable();
             }
         });
