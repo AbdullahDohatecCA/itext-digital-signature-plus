@@ -246,7 +246,7 @@ public class Signature {
             signer = new PdfSigner(
                     reader,
                     new FileOutputStream("C:/DohatecCA_DST2/temp.pdf"),
-                    new StampingProperties()
+                    new StampingProperties().useAppendMode()
             );
 
             //Create signature appearence
@@ -304,6 +304,7 @@ public class Signature {
     private int getNumberOfExistingSignatures() {
         try {
             PdfDocument document = new PdfDocument(new PdfReader(pdfFilePath));
+            PdfPage currentPage = document.getPage(1);
             PdfAcroForm acroForm = PdfAcroForm.getAcroForm(document,false);
 
             if(acroForm == null){
