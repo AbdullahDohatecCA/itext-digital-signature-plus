@@ -29,7 +29,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
-public class Signature {
+public class Signature extends SwingWorker<Void,Void> {
+    protected JDialog signProgressDialog;
     protected String pdfFilePath;
     protected String signatureImagePath;
     protected static PdfReader reader;
@@ -37,7 +38,6 @@ public class Signature {
     protected static KeyStore ks;
     protected static String alias;
     protected static String reason;
-
     protected static int pageNumber;
 
     public void initProvider() {
@@ -103,7 +103,7 @@ public class Signature {
                 i++;
             }
 
-            JTable keystoreTable = new JTable(keystoreAliases, new String[]{"AliasNames"});
+            JTable keystoreTable = new JTable(keystoreAliases, new String[]{"Keystore Aliases"});
             keystoreListPanel.add(keystoreTable,BorderLayout.CENTER);
             JScrollPane scrollPane = new JScrollPane(keystoreTable);
 
@@ -146,26 +146,14 @@ public class Signature {
                                     JOptionPane.showInputDialog(
                                             null,
                                             "What is the reason for this digital signature?",
-                                            "Give reason here.",
+                                            "Reason",
                                             JOptionPane.QUESTION_MESSAGE
                                     )
                             );
 
-                            sign(
-                                    pdfFilePath,
-                                    signatureImagePath,
-                                    alias,
-                                    reason,
-                                    pageNumber
-                            );
+                            showSignProgressDialog();
+                            this.execute(); //performs signature with the sign() method inside doInBackground() method.
 
-                            //show signature operation completion dialog
-                            JOptionPane.showMessageDialog(
-                                    null,
-                                    "Signature Applied",
-                                    "Digital Signature",
-                                    JOptionPane.INFORMATION_MESSAGE
-                            );
                             keystoreSelectionWindow.dispose();
                         }
                     }
@@ -200,6 +188,31 @@ public class Signature {
 
     public void setPageNumber(int pageNumber) {
         Signature.pageNumber = pageNumber;
+    }
+
+    private void showSignProgressDialog(){
+        signProgressDialog = new JDialog();
+        signProgressDialog.setTitle("Signing");
+        signProgressDialog.setIconImage(new ImageIcon("src/main/resources/Dohatec.png").getImage());
+        signProgressDialog.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        signProgressDialog.setSize(300,125);
+        signProgressDialog.getContentPane().setBackground(new Color(0xB3B3B3));
+
+        JPanel loaderPanel = new JPanel();
+        loaderPanel.setBackground(new Color(0xB3B3B3));
+
+        JLabel loaderLabel = new JLabel();
+        ImageIcon loaderIcon = new ImageIcon("src/main/resources/Loader.gif");
+        loaderLabel.setIcon(new ImageIcon(
+                loaderIcon.getImage().getScaledInstance(64,64,Image.SCALE_DEFAULT)
+        ));
+        loaderLabel.setText("Signing Document. Please wait...");
+        loaderLabel.setIconTextGap(5);
+
+        loaderPanel.add(loaderLabel);
+        signProgressDialog.getContentPane().add(loaderPanel);
+        signProgressDialog.setLocationRelativeTo(null);
+        signProgressDialog.setVisible(true);
     }
     
     private void sign(
@@ -304,7 +317,6 @@ public class Signature {
     private int getNumberOfExistingSignatures() {
         try {
             PdfDocument document = new PdfDocument(new PdfReader(pdfFilePath));
-            PdfPage currentPage = document.getPage(1);
             PdfAcroForm acroForm = PdfAcroForm.getAcroForm(document,false);
 
             if(acroForm == null){
@@ -359,5 +371,29 @@ public class Signature {
             );
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    protected Void doInBackground() {
+        sign(
+                pdfFilePath,
+                signatureImagePath,
+                alias,
+                reason,
+                pageNumber
+        );
+        return null;
+    }
+
+    @Override
+    protected void done() {
+        signProgressDialog.dispose();
+        //show signature operation completion dialog
+        JOptionPane.showMessageDialog(
+                null,
+                "Signature Applied",
+                "Digital Signature",
+                JOptionPane.INFORMATION_MESSAGE
+        );
     }
 }

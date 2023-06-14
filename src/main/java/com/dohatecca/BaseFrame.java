@@ -10,29 +10,38 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 
-public class BaseFrame extends JFrame implements ActionListener, MouseListener {
-    JPanel menuContainer;
-    JPanel menubarPanel;
-    JPanel contentPanel;
-    JPanel imagePreviewPanel;
-    JLabel previewImageLabel;
-    JButton open;
-    JButton sign;
-    JButton save;
-    JButton selectImage;
-    ImageIcon dohatecLogo;
-    ImageIcon openIcon;
-    ImageIcon signIcon;
-    ImageIcon saveIcon;
-    ImageIcon imageIcon;
-    ImageIcon previewImage;
-    ImageIcon dummySignatureImage;
-    JFormattedTextField previewImageText;
-
-    String selectedPdfFilePath;
-    String signatureImageFilePath;
-
+public class BaseFrame extends SwingWorker<Void, Float> implements ActionListener, MouseListener {
+    private final JFrame baseFrame;
+    private JFrame savingLoaderFrame;
+    private JPanel menuContainer;
+    private JPanel menubarPanel;
+    private JPanel contentPanel;
+    private JPanel imagePreviewPanel;
+    private JLabel previewImageLabel;
+    private JPanel loaderPanel;
+    private JLabel loaderLabel;
+    private JButton open;
+    private JButton sign;
+    private JButton save;
+    private JButton selectImage;
+    private ImageIcon dohatecLogo;
+    private ImageIcon openIcon;
+    private ImageIcon signIcon;
+    private ImageIcon saveIcon;
+    private ImageIcon imageIcon;
+    private ImageIcon previewImage;
+    private ImageIcon dummySignatureImage;
+    private ImageIcon loaderIcon;
+    private JFormattedTextField previewImageText;
+    private String selectedPdfFilePath;
+    private String signatureImageFilePath;
+    private String signedFileSaveLocation;
+    private Float initialSizeOfSignedFile;
+    private Float writtenSizeOfSignedFile;
     public BaseFrame() {
         dohatecLogo = new ImageIcon("src/main/resources/Dohatec.png");
         dummySignatureImage = new ImageIcon("src/main/resources/DummySignature.png");
@@ -40,13 +49,15 @@ public class BaseFrame extends JFrame implements ActionListener, MouseListener {
         signIcon = new ImageIcon("src/main/resources/Sign.gif");
         saveIcon = new ImageIcon("src/main/resources/Save.gif");
         imageIcon = new ImageIcon("src/main/resources/Image.gif");
+        loaderIcon = new ImageIcon("src/main/resources/Loader.gif");
 
-        setTitle("Dohatec Digital Signature Tool 2 Demo");
-        setIconImage(dohatecLogo.getImage());
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(400,450);
-        setLayout(new BorderLayout());
-        getContentPane().setBackground(new Color(0xB3B3B3));
+        baseFrame = new JFrame();
+        baseFrame.setTitle("Dohatec Digital Signature Tool 2 Demo");
+        baseFrame.setIconImage(dohatecLogo.getImage());
+        baseFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        baseFrame.setSize(400,450);
+        baseFrame.setLayout(new BorderLayout());
+        baseFrame.getContentPane().setBackground(new Color(0xB3B3B3));
 
         menuContainer = new JPanel();
         menuContainer.setLayout(new BorderLayout());
@@ -148,7 +159,7 @@ public class BaseFrame extends JFrame implements ActionListener, MouseListener {
         sign.addActionListener(event -> {
             if(selectedPdfFilePath == null || selectedPdfFilePath.equals("")) {
                 JOptionPane.showMessageDialog(
-                    BaseFrame.this,
+                    baseFrame,
                     "Please open a PDF document first.",
                     "Document File Warning",
                     JOptionPane.WARNING_MESSAGE
@@ -156,7 +167,7 @@ public class BaseFrame extends JFrame implements ActionListener, MouseListener {
             }
             else if(signatureImageFilePath == null || signatureImageFilePath.equals("")) {
                 JOptionPane.showMessageDialog(
-                        BaseFrame.this,
+                        baseFrame,
                         "Please select a signature image.",
                         "Signature Image Warning",
                         JOptionPane.WARNING_MESSAGE
@@ -184,7 +195,7 @@ public class BaseFrame extends JFrame implements ActionListener, MouseListener {
         save.addActionListener(event -> {
             if(selectedPdfFilePath == null || selectedPdfFilePath.equals("")) {
                 JOptionPane.showMessageDialog(
-                        BaseFrame.this,
+                        baseFrame,
                         "Please open a PDF document first.",
                         "Document File Warning",
                         JOptionPane.WARNING_MESSAGE
@@ -192,9 +203,17 @@ public class BaseFrame extends JFrame implements ActionListener, MouseListener {
             }
             else if (signatureImageFilePath == null || signatureImageFilePath.equals("")) {
                 JOptionPane.showMessageDialog(
-                        BaseFrame.this,
+                        baseFrame,
                         "Please select a signature image.",
                         "Signature Image Warning",
+                        JOptionPane.WARNING_MESSAGE
+                );
+            }
+            else if (!Files.exists(Path.of("C://DohatecCA_DST2/temp.pdf"))) {
+                JOptionPane.showMessageDialog(
+                        baseFrame,
+                        "Please sign your document before saving.",
+                        "Sign Warning",
                         JOptionPane.WARNING_MESSAGE
                 );
             }
@@ -204,34 +223,22 @@ public class BaseFrame extends JFrame implements ActionListener, MouseListener {
                 saveLocationSelector.setFileFilter(pdfFilter);
                 int isSelected = saveLocationSelector.showSaveDialog(null);
                 if(isSelected == JFileChooser.APPROVE_OPTION){
-                    String saveLocation = saveLocationSelector.getSelectedFile().getAbsolutePath();
-                    File saveFile = new File(saveLocation);
-                    File signedFile = new File("C:/DohatecCA_DST2/temp.pdf");
-                    if(!saveLocation.endsWith(".pdf")){
-                        saveLocation = saveLocation+".pdf";
+                    signedFileSaveLocation = saveLocationSelector.getSelectedFile().getAbsolutePath();
+                    if(!signedFileSaveLocation.endsWith(".pdf")){
+                        signedFileSaveLocation = signedFileSaveLocation+".pdf";
                     }
-                    System.out.println(saveLocation);
+                    System.out.println(signedFileSaveLocation);
                     try {
-                        FileInputStream fis = new FileInputStream(signedFile);
-                        FileOutputStream fos = new FileOutputStream(saveLocation);
-
-                        int readBytes;
-                        while((readBytes=fis.read()) != -1){
-                            fos.write(readBytes);
-                        }
-
-                        fis.close();
-                        fos.close();
-
+                        showSavingWindow();
+                        this.execute(); //saves file in the background with doInBackground() method
                         selectedPdfFilePath = null;
                         signatureImageFilePath = null;
                         displayPdf.closePdf();
                         previewImageLabel.setIcon(dummySignatureImage);
                         previewImageText.setText("Upload your signature image.");
-                        signedFile.delete();
                     } catch (Exception e) {
                         JOptionPane.showMessageDialog(
-                                BaseFrame.this,
+                                baseFrame,
                                 e.getMessage(),
                                 "File Error",
                                 JOptionPane.ERROR_MESSAGE
@@ -252,11 +259,83 @@ public class BaseFrame extends JFrame implements ActionListener, MouseListener {
         imagePreviewPanel.add(previewImageLabel);
         imagePreviewPanel.add(previewImageText);
         menuContainer.add(imagePreviewPanel,BorderLayout.SOUTH);
-        add(menuContainer,BorderLayout.NORTH);
-        add(contentPanel,BorderLayout.CENTER);
-        pack();
-        setLocationRelativeTo(null);
-        setVisible(true);
+        baseFrame.add(menuContainer,BorderLayout.NORTH);
+        baseFrame.add(contentPanel,BorderLayout.CENTER);
+        baseFrame.pack();
+        baseFrame.setLocationRelativeTo(null);
+        baseFrame.setVisible(true);
+    }
+
+    private void saveSignedFile() {
+        try{
+            FileInputStream fis = new FileInputStream("C://DohatecCA_DST2/temp.pdf");
+            FileOutputStream fos = new FileOutputStream(signedFileSaveLocation);
+
+            int readBytes;
+            initialSizeOfSignedFile = (float)fis.available()/1000000;
+            while((readBytes=fis.read()) != -1){
+                float leftToWriteMB = (float)fis.available()/1000000;
+                publish(initialSizeOfSignedFile-leftToWriteMB);
+                fos.write(readBytes);
+            }
+
+            fis.close();
+            fos.close();
+        }
+        catch (Exception e) {
+            JOptionPane.showMessageDialog(
+                    baseFrame,
+                    e.getMessage(),
+                    "Save Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void showSavingWindow() {
+        savingLoaderFrame = new JFrame();
+        savingLoaderFrame.setTitle("Saving");
+        savingLoaderFrame.setIconImage(dohatecLogo.getImage());
+        savingLoaderFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        savingLoaderFrame.setSize(300,125);
+        savingLoaderFrame.getContentPane().setBackground(new Color(0xB3B3B3));
+
+        loaderPanel = new JPanel();
+        loaderPanel.setBackground(new Color(0xB3B3B3));
+
+        loaderLabel = new JLabel();
+        loaderLabel.setIcon(new ImageIcon(
+                loaderIcon.getImage().getScaledInstance(64,64,Image.SCALE_DEFAULT)
+        ));
+
+        loaderPanel.add(loaderLabel);
+        savingLoaderFrame.add(loaderPanel,BorderLayout.CENTER);
+
+        savingLoaderFrame.setVisible(true);
+        savingLoaderFrame.setLocationRelativeTo(baseFrame);
+    }
+
+    private void closeSavingWindow() {
+        savingLoaderFrame.dispose();
+    }
+
+    @Override
+    protected Void doInBackground() {
+        saveSignedFile();
+        return null;
+    }
+
+    @Override
+    protected void process(List<Float> chunks) {
+        writtenSizeOfSignedFile = chunks.get(chunks.size()-1);
+        loaderLabel.setText(String.format("Saved %.3f MB of %.3f MB",writtenSizeOfSignedFile,initialSizeOfSignedFile));
+    }
+
+    @Override
+    protected void done() {
+        closeSavingWindow();
+        new File("C://DohatecCA_DST2/temp.pdf").delete();
     }
 
     @Override
