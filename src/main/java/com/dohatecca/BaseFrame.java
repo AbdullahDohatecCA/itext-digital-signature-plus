@@ -43,13 +43,13 @@ public class BaseFrame extends SwingWorker<Void, Float> implements ActionListene
     private Float initialSizeOfSignedFile;
     private Float writtenSizeOfSignedFile;
     public BaseFrame() {
-        dohatecLogo = new ImageIcon("src/main/resources/Dohatec.png");
-        dummySignatureImage = new ImageIcon("src/main/resources/DummySignature.png");
-        openIcon = new ImageIcon("src/main/resources/Open.gif");
-        signIcon = new ImageIcon("src/main/resources/Sign.gif");
-        saveIcon = new ImageIcon("src/main/resources/Save.gif");
-        imageIcon = new ImageIcon("src/main/resources/Image.gif");
-        loaderIcon = new ImageIcon("src/main/resources/Loader.gif");
+        dohatecLogo = new ImageIcon("images/Dohatec.png");
+        dummySignatureImage = new ImageIcon("images/DummySignature.png");
+        openIcon = new ImageIcon("images/Open.gif");
+        signIcon = new ImageIcon("images/Sign.gif");
+        saveIcon = new ImageIcon("images/Save.gif");
+        imageIcon = new ImageIcon("images/Image.gif");
+        loaderIcon = new ImageIcon("images/Loader.gif");
 
         baseFrame = new JFrame();
         baseFrame.setTitle("Dohatec Digital Signature Tool 2 Demo");

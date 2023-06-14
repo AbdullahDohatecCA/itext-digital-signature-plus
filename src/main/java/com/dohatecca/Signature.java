@@ -193,7 +193,7 @@ public class Signature extends SwingWorker<Void,Void> {
     private void showSignProgressDialog(){
         signProgressDialog = new JDialog();
         signProgressDialog.setTitle("Signing");
-        signProgressDialog.setIconImage(new ImageIcon("src/main/resources/Dohatec.png").getImage());
+        signProgressDialog.setIconImage(new ImageIcon("images/Dohatec.png").getImage());
         signProgressDialog.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         signProgressDialog.setSize(300,125);
         signProgressDialog.getContentPane().setBackground(new Color(0xB3B3B3));
@@ -202,7 +202,7 @@ public class Signature extends SwingWorker<Void,Void> {
         loaderPanel.setBackground(new Color(0xB3B3B3));
 
         JLabel loaderLabel = new JLabel();
-        ImageIcon loaderIcon = new ImageIcon("src/main/resources/Loader.gif");
+        ImageIcon loaderIcon = new ImageIcon("images/Loader.gif");
         loaderLabel.setIcon(new ImageIcon(
                 loaderIcon.getImage().getScaledInstance(64,64,Image.SCALE_DEFAULT)
         ));
