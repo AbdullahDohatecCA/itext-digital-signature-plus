@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Main-Class: com.dohatecca.Main
+Class-Path: pdfa-8.0.0.jar layout-8.0.0.jar bcutil-jdk15on-1.70.jar imag
+ eio-core-3.9.4.jar svg-8.0.0.jar styled-xml-parser-8.0.0.jar io-8.0.0.j
+ ar commons-8.0.0.jar bcprov-ext-jdk15on-1.70.jar sign-8.0.0.jar common-
+ io-3.9.4.jar kernel-8.0.0.jar bcprov-jdk15on-1.70.jar json-20210307.jar
+  commons-codec-1.15.jar imageio-tiff-3.9.4.jar icepdf-viewer-7.0.2.jar 
+ hyph-8.0.0.jar common-lang-3.9.4.jar jbig2-imageio-3.0.4.jar bouncy-cas
+ tle-connector-8.0.0.jar icepdf-core-7.0.2.jar commons-logging-1.2.jar f
+ orms-8.0.0.jar font-asian-8.0.0.jar bcmail-jdk15on-1.70.jar barcodes-8.
+ 0.0.jar common-image-3.9.4.jar fontbox-2.0.27.jar bouncy-castle-adapter
+ -8.0.0.jar slf4j-api-1.7.36.jar imageio-metadata-3.9.4.jar bcpkix-jdk15
+ on-1.70.jar
+
