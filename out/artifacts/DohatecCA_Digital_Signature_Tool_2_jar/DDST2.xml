@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch4jConfig>
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>C:\Users\AbdullahCA\Desktop\Projects\DohatecCA-Digital-Signature-Tool-2\out\artifacts\DohatecCA_Digital_Signature_Tool_2_jar\DohatecCA-Digital-Signature-Tool-2.jar</jar>
+  <outfile>C:\Users\AbdullahCA\Desktop\Projects\DohatecCA-Digital-Signature-Tool-2\out\artifacts\DohatecCA_Digital_Signature_Tool_2_jar\DDST2.exe</outfile>
+  <errTitle>Java Runtime Not Found</errTitle>
+  <cmdLine></cmdLine>
+  <chdir>.</chdir>
+  <priority>normal</priority>
+  <downloadUrl>https://adoptium.net/download/</downloadUrl>
+  <supportUrl></supportUrl>
+  <stayAlive>false</stayAlive>
+  <restartOnCrash>false</restartOnCrash>
+  <manifest></manifest>
+  <icon>C:\Users\AbdullahCA\Desktop\CA Softwares\Dohatec.ico</icon>
+  <jre>
+    <path>%JAVA_HOME%;%PATH%</path>
+    <requiresJdk>false</requiresJdk>
+    <requires64Bit>false</requires64Bit>
+    <minVersion></minVersion>
+    <maxVersion></maxVersion>
+  </jre>
+  <versionInfo>
+    <fileVersion>0.0.0.5</fileVersion>
+    <txtFileVersion>0.0.5.BETA</txtFileVersion>
+    <fileDescription>DohatecCA digital signer desktop application.</fileDescription>
+    <copyright>2023 ©️DohatecCA</copyright>
+    <productVersion>0.0.0.5</productVersion>
+    <txtProductVersion>0.0.5.BETA</txtProductVersion>
+    <productName>DohatecCA Digital Signature Tool 2</productName>
+    <companyName>DohatecCA</companyName>
+    <internalName>DDST2</internalName>
+    <originalFilename>DDST2.exe</originalFilename>
+    <trademarks>DohatecCA</trademarks>
+    <language>ENGLISH_US</language>
+  </versionInfo>
+</launch4jConfig>
