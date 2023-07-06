@@ -11,8 +11,10 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
-public class HomeScreen extends SwingWorker<Void, Float> implements ActionListener, MouseListener {
+public class HomeScreen implements ActionListener, MouseListener {
     private final JFrame homeScreenFrame;
     private JFrame savingLoaderFrame;
     private JPanel menuContainer;
@@ -221,9 +223,8 @@ public class HomeScreen extends SwingWorker<Void, Float> implements ActionListen
                         signedFileSaveLocationPath += ".pdf";
                     }
                     try {
-                        showSavingWindow();
-                        //saves file in the background with doInBackground() method
-                        this.execute();
+                        Executor executor = Executors.newSingleThreadExecutor();
+                        executor.execute(this::saveSignedFile);
                         selectedPdfFilePath = null;
                         displayPdf.closePdf();
                     } catch (Exception e) {
@@ -253,6 +254,8 @@ public class HomeScreen extends SwingWorker<Void, Float> implements ActionListen
 
     private void saveSignedFile() {
         try{
+            showSavingWindow();
+
             FileInputStream fis = new FileInputStream("C://DohatecCA_DST2/temp.pdf");
             FileOutputStream fos = new FileOutputStream(signedFileSaveLocationPath);
 
@@ -260,10 +263,13 @@ public class HomeScreen extends SwingWorker<Void, Float> implements ActionListen
             initialSizeOfSignedFile = (float)fis.available()/1000000;
             while((readBytes=fis.read()) != -1){
                 float leftToWriteMB = (float)fis.available()/1000000;
-                publish(initialSizeOfSignedFile-leftToWriteMB);
+                writtenSizeOfSignedFile = initialSizeOfSignedFile-leftToWriteMB;
+                loaderLabel.setText(String.format("Saved %.3f MB of %.3f MB",writtenSizeOfSignedFile,initialSizeOfSignedFile));
                 fos.write(readBytes);
             }
 
+            closeSavingWindow();
+            new File("C://DohatecCA_DST2/temp.pdf").delete();
             fis.close();
             fos.close();
         }
@@ -314,24 +320,6 @@ public class HomeScreen extends SwingWorker<Void, Float> implements ActionListen
                 "Error",
                 JOptionPane.ERROR_MESSAGE
         );
-    }
-
-    @Override
-    protected Void doInBackground() {
-        saveSignedFile();
-        return null;
-    }
-
-    @Override
-    protected void process(List<Float> chunks) {
-        writtenSizeOfSignedFile = chunks.get(chunks.size()-1);
-        loaderLabel.setText(String.format("Saved %.3f MB of %.3f MB",writtenSizeOfSignedFile,initialSizeOfSignedFile));
-    }
-
-    @Override
-    protected void done() {
-        closeSavingWindow();
-        new File("C://DohatecCA_DST2/temp.pdf").delete();
     }
 
     @Override
