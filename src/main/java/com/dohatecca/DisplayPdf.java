@@ -14,7 +14,7 @@ public class DisplayPdf {
         return viewerPanel;
     }
 
-    public void showPdf(String filePath) {
+    public void openPdf(String filePath) {
         controller.openDocument(filePath);
         controller.setToolBarVisible(false);
     }
