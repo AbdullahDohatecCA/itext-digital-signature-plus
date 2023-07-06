@@ -11,8 +11,10 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
-public class HomeScreen extends SwingWorker<Void, Float> implements ActionListener, MouseListener {
+public class HomeScreen implements ActionListener, MouseListener {
     private final JFrame homeScreenFrame;
     private JFrame savingLoaderFrame;
     private JPanel menuContainer;
@@ -41,13 +43,13 @@ public class HomeScreen extends SwingWorker<Void, Float> implements ActionListen
     private Float initialSizeOfSignedFile;
     private Float writtenSizeOfSignedFile;
     public HomeScreen() {
-        dohatecLogo = new ImageIcon("src/main/resources/images/Dohatec.png");
-        dummySignatureImage = new ImageIcon("src/main/resources/images/DummySignature.png");
-        openIcon = new ImageIcon("src/main/resources/images/Open.gif");
-        signIcon = new ImageIcon("src/main/resources/images/Sign.gif");
-        saveIcon = new ImageIcon("src/main/resources/images/Save.gif");
-        imageIcon = new ImageIcon("src/main/resources/images/Image.gif");
-        loaderIcon = new ImageIcon("src/main/resources/images/Loader.gif");
+        dohatecLogo = new ImageIcon("images/Dohatec.png");
+        dummySignatureImage = new ImageIcon("images/DummySignature.png");
+        openIcon = new ImageIcon("images/Open.gif");
+        signIcon = new ImageIcon("images/Sign.gif");
+        saveIcon = new ImageIcon("images/Save.gif");
+        imageIcon = new ImageIcon("images/Image.gif");
+        loaderIcon = new ImageIcon("images/Loader.gif");
 
         homeScreenFrame = new JFrame();
         homeScreenFrame.setTitle("Dohatec Digital Signature Tool 2 Demo");
@@ -221,9 +223,8 @@ public class HomeScreen extends SwingWorker<Void, Float> implements ActionListen
                         signedFileSaveLocationPath += ".pdf";
                     }
                     try {
-                        showSavingWindow();
-                        //saves file in the background with doInBackground() method
-                        this.execute();
+                        Executor executor = Executors.newSingleThreadExecutor();
+                        executor.execute(this::saveSignedFile);
                         selectedPdfFilePath = null;
                         displayPdf.closePdf();
                     } catch (Exception e) {
@@ -256,14 +257,19 @@ public class HomeScreen extends SwingWorker<Void, Float> implements ActionListen
             FileInputStream fis = new FileInputStream("C://DohatecCA_DST2/temp.pdf");
             FileOutputStream fos = new FileOutputStream(signedFileSaveLocationPath);
 
+            showSavingWindow();
+
             int readBytes;
             initialSizeOfSignedFile = (float)fis.available()/1000000;
             while((readBytes=fis.read()) != -1){
                 float leftToWriteMB = (float)fis.available()/1000000;
-                publish(initialSizeOfSignedFile-leftToWriteMB);
+                //publish(initialSizeOfSignedFile-leftToWriteMB);
+                writtenSizeOfSignedFile = initialSizeOfSignedFile-leftToWriteMB;
+                loaderLabel.setText(String.format("Saved %.3f MB of %.3f MB",writtenSizeOfSignedFile,initialSizeOfSignedFile));
                 fos.write(readBytes);
             }
 
+            closeSavingWindow();
             fis.close();
             fos.close();
         }
@@ -314,24 +320,6 @@ public class HomeScreen extends SwingWorker<Void, Float> implements ActionListen
                 "Error",
                 JOptionPane.ERROR_MESSAGE
         );
-    }
-
-    @Override
-    protected Void doInBackground() {
-        saveSignedFile();
-        return null;
-    }
-
-    @Override
-    protected void process(List<Float> chunks) {
-        writtenSizeOfSignedFile = chunks.get(chunks.size()-1);
-        loaderLabel.setText(String.format("Saved %.3f MB of %.3f MB",writtenSizeOfSignedFile,initialSizeOfSignedFile));
-    }
-
-    @Override
-    protected void done() {
-        closeSavingWindow();
-        new File("C://DohatecCA_DST2/temp.pdf").delete();
     }
 
     @Override

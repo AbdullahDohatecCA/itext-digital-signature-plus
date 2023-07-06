@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class Signature extends SwingWorker<Void,Void> {
     private JFrame keystoreSelectionWindow;
@@ -186,7 +188,7 @@ public class Signature extends SwingWorker<Void,Void> {
     private void showSignProgressDialog(){
         signProgressDialog = new JDialog();
         signProgressDialog.setTitle("Signing");
-        signProgressDialog.setIconImage(new ImageIcon("src/main/resources/images/Dohatec.png").getImage());
+        signProgressDialog.setIconImage(new ImageIcon("images/Dohatec.png").getImage());
         signProgressDialog.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         signProgressDialog.setSize(300,125);
         signProgressDialog.getContentPane().setBackground(new Color(0xB3B3B3));
@@ -195,7 +197,7 @@ public class Signature extends SwingWorker<Void,Void> {
         loaderPanel.setBackground(new Color(0xB3B3B3));
 
         loaderLabel = new JLabel();
-        loaderIcon = new ImageIcon("src/main/resources/images/Loader.gif");
+        loaderIcon = new ImageIcon("images/Loader.gif");
         loaderLabel.setIcon(
                 new ImageIcon(
                         loaderIcon
