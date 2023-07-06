@@ -11,6 +11,6 @@ public class Main {
         UIManager.setLookAndFeel(
                 UIManager.getSystemLookAndFeelClassName()
         );
-        new BaseFrame();
+        new HomeScreen();
     }
 }

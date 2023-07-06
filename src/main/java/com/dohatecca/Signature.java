@@ -30,35 +30,42 @@ import java.util.List;
 import java.util.Map;
 
 public class Signature extends SwingWorker<Void,Void> {
-    protected JDialog signProgressDialog;
-    protected String pdfFilePath;
-    protected String signatureImagePath;
-    protected static PdfReader reader;
-    protected static PdfSigner signer;
-    protected static KeyStore ks;
-    protected static String alias;
-    protected static String reason;
-    protected static int pageNumber;
+    private JFrame keystoreSelectionWindow;
+    private JPanel topPanel;
+    private JPanel keystoreListPanel;
+    private JPanel bottomPanel;
+    private JPanel loaderPanel;
+    private JDialog signProgressDialog;
+    private JLabel keystoreWindowHeader;
+    private JLabel loaderLabel;
+    private JTable keystoreTable;
+    private JScrollPane scrollPane;
+    private JButton cancelButton;
+    private JButton okButton;
+    private ImageIcon loaderIcon;
+    private String pdfFilePath;
+    private String signatureImagePath;
+    private static PdfReader reader;
+    private static PdfSigner signer;
+    private static KeyStore keyStore;
+    private static Enumeration<String> aliases;
+    private static String[][] keystoreAliases;
+    private static String alias;
+    private static String reason;
+    private static int pageNumber;
 
     public void initProvider() {
-        //Initiate Bouncy Castle provider
         BouncyCastleProvider bcProvider = new BouncyCastleProvider();
         Security.addProvider(bcProvider);
     }
     
     public void initKeyStore() {
         try {
-            //Load windows keystore
-            ks = KeyStore.getInstance("Windows-MY");
-            ks.load(null,null);
+            keyStore = KeyStore.getInstance("Windows-MY");
+            keyStore.load(null,null);
         }
         catch (Exception e) {
-            JOptionPane.showMessageDialog(
-                    null,
-                    e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+            showErrorMessage(e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -71,47 +78,47 @@ public class Signature extends SwingWorker<Void,Void> {
         this.signatureImagePath = signatureImagePath;
     }
 
-    public void showKeyStoreTable() {
+    public void selectKeystoreAndSign() {
         try {
-            Enumeration<String> aliases = ks.aliases();
+            aliases = keyStore.aliases();
 
-            JFrame keystoreSelectionWindow = new JFrame();
+            keystoreSelectionWindow = new JFrame();
             keystoreSelectionWindow.setTitle("Keystores");
             keystoreSelectionWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             keystoreSelectionWindow.setLayout(new BorderLayout());
             keystoreSelectionWindow.setSize(400,450);
 
-            JPanel topPanel = new JPanel();
+            topPanel = new JPanel();
             topPanel.setSize(new Dimension(200,75));
             topPanel.setBackground(new Color(0x76A9F8));
             topPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-            JLabel keystoreWindowHeader = new JLabel();
+            keystoreWindowHeader = new JLabel();
             keystoreWindowHeader.setText("Select Keystore");
             keystoreWindowHeader.setFont(new Font("Nunito",Font.BOLD,14));
             keystoreWindowHeader.setBackground(null);
             keystoreWindowHeader.setBorder(null);
             topPanel.add(keystoreWindowHeader);
 
-            JPanel keystoreListPanel = new JPanel();
+            keystoreListPanel = new JPanel();
             keystoreListPanel.setBackground(new Color(0xB3B3B3));
             keystoreListPanel.setLayout(new BorderLayout());
 
-            String[][] keystoreAliases = new String[100][1];
+            keystoreAliases = new String[100][1];
             int i = 0;
             while(aliases.hasMoreElements()){
                 keystoreAliases[i] = new String[]{aliases.nextElement()};
                 i++;
             }
 
-            JTable keystoreTable = new JTable(keystoreAliases, new String[]{"Keystore Aliases"});
+            keystoreTable = new JTable(keystoreAliases, new String[]{"Keystore Aliases"});
             keystoreListPanel.add(keystoreTable,BorderLayout.CENTER);
-            JScrollPane scrollPane = new JScrollPane(keystoreTable);
+            scrollPane = new JScrollPane(keystoreTable);
 
-            JPanel bottomPanel = new JPanel();
+            bottomPanel = new JPanel();
             bottomPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
             bottomPanel.setBackground(new Color(0x76A9F8));
 
-            JButton cancelButton = new JButton();
+            cancelButton = new JButton();
             cancelButton.setText("Cancel");
             cancelButton.setFocusable(false);
             cancelButton.setFont(new Font("Nunito",Font.PLAIN,18));
@@ -120,9 +127,8 @@ public class Signature extends SwingWorker<Void,Void> {
                         keystoreSelectionWindow.dispose();
                     }
             );
-            bottomPanel.add(cancelButton);
 
-            JButton okButton = new JButton();
+            okButton = new JButton();
             okButton.setText("OK");
             okButton.setFocusable(false);
             okButton.setFont(new Font("Nunito",Font.PLAIN,18));
@@ -130,18 +136,10 @@ public class Signature extends SwingWorker<Void,Void> {
                     e -> {
                         int selectedRow = keystoreTable.getSelectedRow();
                         if (selectedRow == -1) {
-                            JOptionPane.showMessageDialog(
-                                    keystoreSelectionWindow,
-                                    "Please select a keystore first.",
-                                    "Keystore Warning",
-                                    JOptionPane.WARNING_MESSAGE
-                            );
+                            showWarningMessage("Please select a keystore first.");
                         }
                         else {
-                            String alias = (String) keystoreTable.getValueAt(selectedRow, 0);
-                            System.out.println(alias);
-                            setAlias(alias);
-
+                            setAlias((String) keystoreTable.getValueAt(selectedRow, 0));
                             setReason(
                                     JOptionPane.showInputDialog(
                                             null,
@@ -150,16 +148,16 @@ public class Signature extends SwingWorker<Void,Void> {
                                             JOptionPane.QUESTION_MESSAGE
                                     )
                             );
-
                             showSignProgressDialog();
-                            this.execute(); //performs signature with the sign() method inside doInBackground() method.
-
+                            //performs signature with the sign() method inside doInBackground() method.
+                            this.execute();
                             keystoreSelectionWindow.dispose();
                         }
                     }
             );
-            bottomPanel.add(okButton);
 
+            bottomPanel.add(cancelButton);
+            bottomPanel.add(okButton);
             keystoreSelectionWindow.add(topPanel,BorderLayout.NORTH);
             keystoreSelectionWindow.add(keystoreListPanel,BorderLayout.CENTER);
             keystoreSelectionWindow.add(bottomPanel,BorderLayout.SOUTH);
@@ -168,12 +166,7 @@ public class Signature extends SwingWorker<Void,Void> {
             keystoreSelectionWindow.setVisible(true);
         }
         catch (Exception e){
-            JOptionPane.showMessageDialog(
-                    null,
-                    e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+            showErrorMessage(e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -186,26 +179,30 @@ public class Signature extends SwingWorker<Void,Void> {
         reason = givenReason;
     }
 
-    public void setPageNumber(int pageNumber) {
-        Signature.pageNumber = pageNumber;
+    public void setPageNumber(int selectedPageNumber) {
+        pageNumber = selectedPageNumber;
     }
 
     private void showSignProgressDialog(){
         signProgressDialog = new JDialog();
         signProgressDialog.setTitle("Signing");
-        signProgressDialog.setIconImage(new ImageIcon("images/Dohatec.png").getImage());
+        signProgressDialog.setIconImage(new ImageIcon("src/main/resources/images/Dohatec.png").getImage());
         signProgressDialog.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         signProgressDialog.setSize(300,125);
         signProgressDialog.getContentPane().setBackground(new Color(0xB3B3B3));
 
-        JPanel loaderPanel = new JPanel();
+        loaderPanel = new JPanel();
         loaderPanel.setBackground(new Color(0xB3B3B3));
 
-        JLabel loaderLabel = new JLabel();
-        ImageIcon loaderIcon = new ImageIcon("images/Loader.gif");
-        loaderLabel.setIcon(new ImageIcon(
-                loaderIcon.getImage().getScaledInstance(64,64,Image.SCALE_DEFAULT)
-        ));
+        loaderLabel = new JLabel();
+        loaderIcon = new ImageIcon("src/main/resources/images/Loader.gif");
+        loaderLabel.setIcon(
+                new ImageIcon(
+                        loaderIcon
+                                .getImage()
+                                .getScaledInstance(64,64,Image.SCALE_DEFAULT)
+                )
+        );
         loaderLabel.setText("Signing Document. Please wait...");
         loaderLabel.setIconTextGap(5);
 
@@ -223,14 +220,11 @@ public class Signature extends SwingWorker<Void,Void> {
             int pageNumber
     ) {
         try {
-            //Load private key and certificate from keystore
-            PrivateKey pk = (PrivateKey) ks.getKey(keyStoreAlias,null);
-            Certificate[] chain = ks.getCertificateChain(keyStoreAlias);
+            PrivateKey pk = (PrivateKey) keyStore.getKey(keyStoreAlias,null);
+            Certificate[] chain = keyStore.getCertificateChain(keyStoreAlias);
 
-            //Add OCSP client
             IOcspClient ocspClient = new OcspClientBouncyCastle(null);
 
-            //Add time stamp Client
             ITSAClient tsaClient = null;
             for (Certificate certificate : chain) {
                 X509Certificate cert = (X509Certificate) certificate;
@@ -241,19 +235,12 @@ public class Signature extends SwingWorker<Void,Void> {
                 }
             }
 
-            //Add CRL
             List<ICrlClient> crlList =  new ArrayList<ICrlClient>();
             crlList.add(new CrlClientOnline(chain));
 
-            //Load pdf and signer
-            File file = new File("C:/DohatecCA_DST2/");
-            boolean directoryCreationSuccess = file.mkdirs();
-            if(directoryCreationSuccess){
-                System.out.println("Directory created successfully on "+file.getPath());
-            }
-            else{
-                System.out.println("Directory already exists or failed operation.");
-            }
+            File tempSaveDirectory = new File("C:/DohatecCA_DST2/");
+            boolean directoryCreationSuccess = tempSaveDirectory.mkdirs();
+            System.out.println("Directory Created: "+directoryCreationSuccess);
             FileOutputStream fos = new FileOutputStream("C:/DohatecCA_DST2/temp.pdf");
             reader = new PdfReader(pdfFilePath);
             signer = new PdfSigner(
@@ -262,7 +249,6 @@ public class Signature extends SwingWorker<Void,Void> {
                     new StampingProperties().useAppendMode()
             );
 
-            //Create signature appearence
             int numberOfExistingSignatures = getNumberOfExistingSignatures();
             PdfDocument document = new PdfDocument(new PdfReader(pdfFilePath));
             int pdfPageWidth = (int) document.getPage(1).getPageSize().getWidth();
@@ -304,12 +290,7 @@ public class Signature extends SwingWorker<Void,Void> {
             fos.close();
         }
         catch (Exception ex) {
-            JOptionPane.showMessageDialog(
-                    null,
-                    ex.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+            showErrorMessage(ex.getMessage());
             throw new RuntimeException(ex);
         }
     }
@@ -334,23 +315,18 @@ public class Signature extends SwingWorker<Void,Void> {
             }
         }
         catch (Exception ex) {
-            JOptionPane.showMessageDialog(
-                    null,
-                    ex.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+            showErrorMessage(ex.getMessage());
             throw new RuntimeException(ex);
         }
     }
 
     private String getLocationData() {
         try {
-            URL infoUrl = new URL("http://ip-api.com/json/");
-            HttpURLConnection infoConn = (HttpURLConnection) infoUrl.openConnection();
-            infoConn.setRequestMethod("GET");
-            infoConn.setRequestProperty("User-Agent", "Mozilla/5.0");
-            BufferedReader infoReader = new BufferedReader(new InputStreamReader(infoConn.getInputStream()));
+            URL ipInfoURL = new URL("http://ip-api.com/json/");
+            HttpURLConnection ipInfoConnection = (HttpURLConnection) ipInfoURL.openConnection();
+            ipInfoConnection.setRequestMethod("GET");
+            ipInfoConnection.setRequestProperty("User-Agent", "Mozilla/5.0");
+            BufferedReader infoReader = new BufferedReader(new InputStreamReader(ipInfoConnection.getInputStream()));
             String infoLine;
             StringBuffer infoResponse = new StringBuffer();
             while ((infoLine = infoReader.readLine()) != null) {
@@ -363,12 +339,7 @@ public class Signature extends SwingWorker<Void,Void> {
             String country = infoObject.getString("country");
             return String.format("%s,%s",city,country);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(
-                    null,
-                    e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+            showErrorMessage(e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -394,6 +365,23 @@ public class Signature extends SwingWorker<Void,Void> {
                 "Signature Applied",
                 "Digital Signature",
                 JOptionPane.INFORMATION_MESSAGE
+        );
+    }
+
+    private void showWarningMessage(String message){
+        JOptionPane.showMessageDialog(
+                keystoreSelectionWindow,
+                message,
+                "Warning",
+                JOptionPane.WARNING_MESSAGE
+        );
+    }
+    private void showErrorMessage(String message){
+        JOptionPane.showMessageDialog(
+                keystoreSelectionWindow,
+                message,
+                "Error",
+                JOptionPane.ERROR_MESSAGE
         );
     }
 }
