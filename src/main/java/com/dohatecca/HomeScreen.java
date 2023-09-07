@@ -95,7 +95,7 @@ public class HomeScreen implements ActionListener, MouseListener {
                     }
                 }
                 else{
-                    System.out.println("unrecognized file type.");
+                    showErrorMessage("Invalid file type.",homeScreenFrame);
                 }
 
             }
@@ -121,6 +121,11 @@ public class HomeScreen implements ActionListener, MouseListener {
                     if(isSelected == JFileChooser.APPROVE_OPTION) {
                         signatureImageFilePath = imageFileChooser.getSelectedFile().getAbsolutePath();
                         try{
+                            if(!Files.isDirectory(Path.of("C:/DohatecCA_DST2/"))){
+                                File dohatecCADST2Dir = new File("C:/DohatecCA_DST2/");
+                                dohatecCADST2Dir.mkdirs();
+                            }
+                            lastSignatureImageLocationFile = new File("C:/DohatecCA_DST2/lastSignatureImageLocationPath.txt");
                             FileWriter fileWriter = new FileWriter(lastSignatureImageLocationFile);
                             fileWriter.write(signatureImageFilePath);
                             fileWriter.close();
@@ -252,6 +257,7 @@ public class HomeScreen implements ActionListener, MouseListener {
 
     private void createMenubarPanel() {
         menubarPanel = new JPanel();
+        menubarPanel.setSize(1200,250);
         menubarPanel.setBackground(new Color(0xAACCFF));
         menubarPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
     }
@@ -259,19 +265,18 @@ public class HomeScreen implements ActionListener, MouseListener {
     private void createImagePreviewPanel() {
         imagePreviewPanel = new JPanel();
         imagePreviewPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
-        imagePreviewPanel.setSize(400,250);
+        imagePreviewPanel.setSize(1200,250);
         imagePreviewPanel.setBackground(new Color(0x76A9F8));
     }
 
     private void setSignatureImagePreview(){
         try{
-            lastSignatureImageLocationFile = new File("C:/DohatecCA_DST2/lastSignatureImageLocationPath.txt");
-
             previewImageLabel = new JLabel();
             previewImageLabel.setPreferredSize(new Dimension(250,100));
 
             previewImageText = new JFormattedTextField();
             previewImageText.setFont(new Font("Nunito",Font.PLAIN,18));
+            previewImageText.setMargin(new Insets(15,15,15,15));
             previewImageText.setBackground(null);
             previewImageText.setEditable(false);
             previewImageText.setBorder(null);
