@@ -1,0 +1,19 @@
+<component name="ArtifactManager">
+  <artifact type="jpackage" name="DohatecCA-Digital-Signature-Tool-2">
+    <output-path>$PROJECT_DIR$/out/artifacts/DohatecCA_Digital_Signature_Tool_2</output-path>
+    <properties id="jpackage-properties">
+      <options>
+        <option name="version" value="0.0.0.5" />
+        <option name="copyright" value="Dohatec New Media" />
+        <option name="description" value="A desktop digital signature tool." />
+        <option name="vendor" value="DohatecCA" />
+        <option name="mainClass" value="com.dohatecca.Main" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="DohatecCA_Digital_Signature_Tool_2.jar">
+        <element id="module-output" name="DohatecCA-Digital-Signature-Tool-2" />
+      </element>
+    </root>
+  </artifact>
+</component>

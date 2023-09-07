@@ -6,7 +6,7 @@
 
     <groupId>com.dohatecca</groupId>
     <artifactId>DohatecCA-Digital-Signature-Tool-2</artifactId>
-    <version>0.2</version>
+    <version>0.6</version>
     <packaging>jar</packaging>
 
     <properties>
