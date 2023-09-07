@@ -282,6 +282,7 @@ public class HomeScreen implements ActionListener, MouseListener {
             previewImageText.setBorder(null);
 
             if(Files.exists(Path.of("C:/DohatecCA_DST2/lastSignatureImageLocationPath.txt"))){
+                lastSignatureImageLocationFile = new File("C:/DohatecCA_DST2/lastSignatureImageLocationPath.txt");
                 BufferedReader fileReader = new BufferedReader(new FileReader(lastSignatureImageLocationFile));
                 signatureImageFilePath = fileReader.readLine();
                 fileReader.close();

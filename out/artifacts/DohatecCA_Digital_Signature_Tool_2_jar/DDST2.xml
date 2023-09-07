@@ -4,11 +4,11 @@
   <headerType>gui</headerType>
   <jar>C:\Users\AbdullahCA\Desktop\Projects\DohatecCA-Digital-Signature-Tool-2\out\artifacts\DohatecCA_Digital_Signature_Tool_2_jar\DohatecCA-Digital-Signature-Tool-2.jar</jar>
   <outfile>C:\Users\AbdullahCA\Desktop\Projects\DohatecCA-Digital-Signature-Tool-2\out\artifacts\DohatecCA_Digital_Signature_Tool_2_jar\DDST2.exe</outfile>
-  <errTitle>Java Runtime Error</errTitle>
+  <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
   <priority>normal</priority>
-  <downloadUrl>adoptium.net/download</downloadUrl>
+  <downloadUrl></downloadUrl>
   <supportUrl></supportUrl>
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
@@ -24,11 +24,11 @@
   <versionInfo>
     <fileVersion>0.0.0.6</fileVersion>
     <txtFileVersion>0.0.0.6.Beta</txtFileVersion>
-    <fileDescription>A desktop application for applying digital signatures</fileDescription>
-    <copyright>2023©DohatecCA️</copyright>
+    <fileDescription>A desktop application for digital signature.</fileDescription>
+    <copyright>2023©️DohatecCA</copyright>
     <productVersion>0.0.0.6</productVersion>
     <txtProductVersion>0.0.0.6.Beta</txtProductVersion>
-    <productName>DohatecCA Digital Signature Tool 2</productName>
+    <productName>Dohatec Digital Signature Tool 2</productName>
     <companyName>Dohatec New Media</companyName>
     <internalName>DohatecCA</internalName>
     <originalFilename>DDST2.exe</originalFilename>
