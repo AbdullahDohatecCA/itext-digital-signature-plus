@@ -28,8 +28,9 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+
+import static com.dohatecca.MessageUtil.showErrorMessage;
+import static com.dohatecca.MessageUtil.showWarningMessage;
 
 public class Signature extends SwingWorker<Void,Void> {
     private JFrame keystoreSelectionWindow;
@@ -67,7 +68,7 @@ public class Signature extends SwingWorker<Void,Void> {
             keyStore.load(null,null);
         }
         catch (Exception e) {
-            showErrorMessage(e.getMessage());
+            showErrorMessage(e.getMessage(),keystoreSelectionWindow);
             throw new RuntimeException(e);
         }
     }
@@ -138,7 +139,7 @@ public class Signature extends SwingWorker<Void,Void> {
                     e -> {
                         int selectedRow = keystoreTable.getSelectedRow();
                         if (selectedRow == -1) {
-                            showWarningMessage("Please select a keystore first.");
+                            showWarningMessage("Please select a keystore first.",keystoreSelectionWindow);
                         }
                         else {
                             setAlias((String) keystoreTable.getValueAt(selectedRow, 0));
@@ -168,7 +169,7 @@ public class Signature extends SwingWorker<Void,Void> {
             keystoreSelectionWindow.setVisible(true);
         }
         catch (Exception e){
-            showErrorMessage(e.getMessage());
+            showErrorMessage(e.getMessage(),keystoreSelectionWindow);
             throw new RuntimeException(e);
         }
     }
@@ -188,7 +189,7 @@ public class Signature extends SwingWorker<Void,Void> {
     private void showSignProgressDialog(){
         signProgressDialog = new JDialog();
         signProgressDialog.setTitle("Signing");
-        signProgressDialog.setIconImage(new ImageIcon("images/Dohatec.png").getImage());
+        signProgressDialog.setIconImage(new ImageIcon("src/main/resources/images/Dohatec.png").getImage());
         signProgressDialog.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         signProgressDialog.setSize(300,125);
         signProgressDialog.getContentPane().setBackground(new Color(0xB3B3B3));
@@ -197,7 +198,7 @@ public class Signature extends SwingWorker<Void,Void> {
         loaderPanel.setBackground(new Color(0xB3B3B3));
 
         loaderLabel = new JLabel();
-        loaderIcon = new ImageIcon("images/Loader.gif");
+        loaderIcon = new ImageIcon("src/main/resources/images/Loader.gif");
         loaderLabel.setIcon(
                 new ImageIcon(
                         loaderIcon
@@ -292,7 +293,7 @@ public class Signature extends SwingWorker<Void,Void> {
             fos.close();
         }
         catch (Exception ex) {
-            showErrorMessage(ex.getMessage());
+            showErrorMessage(ex.getMessage(),keystoreSelectionWindow);
             throw new RuntimeException(ex);
         }
     }
@@ -317,7 +318,7 @@ public class Signature extends SwingWorker<Void,Void> {
             }
         }
         catch (Exception ex) {
-            showErrorMessage(ex.getMessage());
+            showErrorMessage(ex.getMessage(),keystoreSelectionWindow);
             throw new RuntimeException(ex);
         }
     }
@@ -341,7 +342,7 @@ public class Signature extends SwingWorker<Void,Void> {
             String country = infoObject.getString("country");
             return String.format("%s,%s",city,country);
         } catch (Exception e) {
-            showErrorMessage(e.getMessage());
+            showErrorMessage(e.getMessage(),keystoreSelectionWindow);
             throw new RuntimeException(e);
         }
     }
@@ -367,23 +368,6 @@ public class Signature extends SwingWorker<Void,Void> {
                 "Signature Applied",
                 "Digital Signature",
                 JOptionPane.INFORMATION_MESSAGE
-        );
-    }
-
-    private void showWarningMessage(String message){
-        JOptionPane.showMessageDialog(
-                keystoreSelectionWindow,
-                message,
-                "Warning",
-                JOptionPane.WARNING_MESSAGE
-        );
-    }
-    private void showErrorMessage(String message){
-        JOptionPane.showMessageDialog(
-                keystoreSelectionWindow,
-                message,
-                "Error",
-                JOptionPane.ERROR_MESSAGE
         );
     }
 }

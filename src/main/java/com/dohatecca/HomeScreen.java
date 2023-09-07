@@ -10,12 +10,14 @@ import java.awt.event.MouseListener;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import static com.dohatecca.MessageUtil.showErrorMessage;
+import static com.dohatecca.MessageUtil.showWarningMessage;
+
 public class HomeScreen implements ActionListener, MouseListener {
-    private final JFrame homeScreenFrame;
+    private JFrame homeScreenFrame;
     private JFrame savingLoaderFrame;
     private JPanel menuContainer;
     private JPanel menubarPanel;
@@ -34,56 +36,29 @@ public class HomeScreen implements ActionListener, MouseListener {
     private ImageIcon saveIcon;
     private ImageIcon imageIcon;
     private ImageIcon previewImage;
-    private ImageIcon dummySignatureImage;
+    private ImageIcon defaultSignatureImage;
     private ImageIcon loaderIcon;
     private JFormattedTextField previewImageText;
-    private String selectedPdfFilePath;
+    private String selectedDocumentFilePath;
     private String signatureImageFilePath;
     private String signedFileSaveLocationPath;
-    private Float initialSizeOfSignedFile;
-    private Float writtenSizeOfSignedFile;
+    private Float initialSizeOfSignedFileMB;
+    private Float writtenSizeOfSignedFileMB;
+    private File lastSignatureImageLocationFile;
     public HomeScreen() {
-        dohatecLogo = new ImageIcon("images/Dohatec.png");
-        dummySignatureImage = new ImageIcon("images/DummySignature.png");
-        openIcon = new ImageIcon("images/Open.gif");
-        signIcon = new ImageIcon("images/Sign.gif");
-        saveIcon = new ImageIcon("images/Save.gif");
-        imageIcon = new ImageIcon("images/Image.gif");
-        loaderIcon = new ImageIcon("images/Loader.gif");
-
-        homeScreenFrame = new JFrame();
-        homeScreenFrame.setTitle("Dohatec Digital Signature Tool 2 Demo");
-        homeScreenFrame.setIconImage(dohatecLogo.getImage());
-        homeScreenFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        homeScreenFrame.setSize(400,450);
-        homeScreenFrame.setLayout(new BorderLayout());
-        homeScreenFrame.getContentPane().setBackground(new Color(0xB3B3B3));
-
-        menuContainer = new JPanel();
-        menuContainer.setLayout(new BorderLayout());
-
-        menubarPanel = new JPanel();
-        menubarPanel.setBackground(new Color(0xAACCFF));
-        menubarPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
-
-        imagePreviewPanel = new JPanel();
-        imagePreviewPanel.setSize(400,250);
-        imagePreviewPanel.setBackground(new Color(0x76A9F8));
-
-        previewImageLabel = new JLabel();
-        previewImageLabel.setPreferredSize(new Dimension(250,100));
-        previewImageLabel.setIcon(dummySignatureImage);
-
-        previewImageText = new JFormattedTextField();
-        previewImageText.setText("Upload your signature image.");
-        previewImageText.setFont(new Font("Nunito",Font.PLAIN,18));
-        previewImageText.setForeground(new Color(0xF50606));
-        previewImageText.setBackground(null);
-        previewImageText.setEditable(false);
-        previewImageText.setBorder(null);
-
         DisplayPdf displayPdf = new DisplayPdf();
+        PdfConverter pdfConverter = new PdfConverter();
+
+
+        initIcons();
+        createHomeScreenFrame();
+        createMenuContainer();
+        createMenubarPanel();
+        createImagePreviewPanel();
+        setSignatureImagePreview();
+
         pdfContentPanel = displayPdf.getPdfViewerPanel();
+        displayPdf.openPdf("src/main/resources/docs/Welcome.pdf");
 
         open = new JButton();
         open.setBackground(null);
@@ -93,40 +68,39 @@ public class HomeScreen implements ActionListener, MouseListener {
         open.setIcon(openIcon);
         open.setFont(new Font("Nunito",Font.PLAIN,18));
         open.addActionListener(event -> {
-            JFileChooser pdfFileChooser = new JFileChooser();
+            JFileChooser documentFileChooser = new JFileChooser();
             FileNameExtensionFilter pdfFilter = new FileNameExtensionFilter(
                     "PDF files",
                     "pdf"
             );
-            pdfFileChooser.setFileFilter(pdfFilter);
-            int isSelected = pdfFileChooser.showOpenDialog(homeScreenFrame);
+            FileNameExtensionFilter imageFilter = new FileNameExtensionFilter(
+                    "Image files",
+                    "jpg","png","gif","bmp"
+            );
+            documentFileChooser.addChoosableFileFilter(pdfFilter);
+            documentFileChooser.addChoosableFileFilter(imageFilter);
+            documentFileChooser.setFileFilter(pdfFilter);
+            int isSelected = documentFileChooser.showOpenDialog(homeScreenFrame);
             if(isSelected == JFileChooser.APPROVE_OPTION) {
-                selectedPdfFilePath = pdfFileChooser.getSelectedFile().getAbsolutePath();
-                displayPdf.openPdf(selectedPdfFilePath);
+                File selectedDocumentFile = documentFileChooser.getSelectedFile();
+                selectedDocumentFilePath = selectedDocumentFile.getAbsolutePath();
+                if(pdfFilter.accept(selectedDocumentFile)){
+                    displayPdf.openPdf(selectedDocumentFilePath);
+                }
+                else if(imageFilter.accept(selectedDocumentFile)){
+                    pdfConverter.convertImageToPdf(selectedDocumentFilePath);
+                    selectedDocumentFilePath = "C:/DohatecCA_DST2/tempI2PFile.pdf";
+                    if(Files.exists(Path.of(selectedDocumentFilePath))){
+                        displayPdf.openPdf("C:/DohatecCA_DST2/tempI2PFile.pdf");
+                    }
+                }
+                else{
+                    System.out.println("unrecognized file type.");
+                }
+
             }
         });
         open.addMouseListener(this);
-
-        File lastSignatureImageLocationFile = new File("C:/DohatecCA_DST2/lastSignatureImageLocationPath.txt");
-        try{
-            if(Files.exists(Path.of("C:/DohatecCA_DST2/lastSignatureImageLocationPath.txt"))){
-                BufferedReader fileReader = new BufferedReader(new FileReader(lastSignatureImageLocationFile));
-                signatureImageFilePath = fileReader.readLine();
-                fileReader.close();
-
-                previewImage = new ImageIcon(
-                        new ImageIcon(signatureImageFilePath)
-                                .getImage()
-                                .getScaledInstance(250,100,Image.SCALE_DEFAULT)
-                );
-                previewImageLabel.setIcon(previewImage);
-                previewImageText.setText("Image obtained from last selection.");
-                previewImageText.setForeground(new Color(0x51F851));
-            }
-        }
-        catch (Exception e){
-            showErrorMessage(e.getMessage());
-        }
 
         selectImage = new JButton();
         selectImage.setBackground(null);
@@ -152,7 +126,7 @@ public class HomeScreen implements ActionListener, MouseListener {
                             fileWriter.close();
                         }
                         catch(Exception e){
-                            showErrorMessage(e.getMessage());
+                            showErrorMessage(e.getMessage(),homeScreenFrame);
                         }
                         previewImage = new ImageIcon(
                                 new ImageIcon(signatureImageFilePath)
@@ -174,17 +148,17 @@ public class HomeScreen implements ActionListener, MouseListener {
         sign.setIcon(signIcon);
         sign.setFont(new Font("Nunito",Font.PLAIN,18));
         sign.addActionListener(event -> {
-            if(selectedPdfFilePath == null || selectedPdfFilePath.equals("")) {
-                showWarningMessage("Please open a PDF document first.");
+            if(selectedDocumentFilePath == null || selectedDocumentFilePath.equals("")) {
+                showWarningMessage("Please open a PDF document first.",homeScreenFrame);
             }
             else if(signatureImageFilePath == null || signatureImageFilePath.equals("")) {
-                showWarningMessage("Please select a signature image.");
+                showWarningMessage("Please select a signature image.",homeScreenFrame);
             }
             else{
                 Signature signature = new Signature();
                 signature.initProvider();
                 signature.initKeyStore();
-                signature.setPdfFilePath(selectedPdfFilePath);
+                signature.setPdfFilePath(selectedDocumentFilePath);
                 signature.setSignatureImagePath(signatureImageFilePath);
                 signature.setPageNumber(displayPdf.getCurrentPageNumber()+1);
                 signature.selectKeystoreAndSign();
@@ -200,14 +174,14 @@ public class HomeScreen implements ActionListener, MouseListener {
         save.setIcon(saveIcon);
         save.setFont(new Font("Nunito",Font.PLAIN,18));
         save.addActionListener(event -> {
-            if(selectedPdfFilePath == null || selectedPdfFilePath.equals("")) {
-                showWarningMessage("Please open a PDF document first.");
+            if(selectedDocumentFilePath == null || selectedDocumentFilePath.equals("")) {
+                showWarningMessage("Please open a PDF document first.",homeScreenFrame);
             }
             else if (signatureImageFilePath == null || signatureImageFilePath.equals("")) {
-                showWarningMessage("Please select a signature image.");
+                showWarningMessage("Please select a signature image.",homeScreenFrame);
             }
             else if (!Files.exists(Path.of("C://DohatecCA_DST2/temp.pdf"))) {
-                showWarningMessage("Please sign your document before saving.");
+                showWarningMessage("Please sign your document before saving.",homeScreenFrame);
             }
             else {
                 JFileChooser saveLocationSelector = new JFileChooser();
@@ -225,10 +199,11 @@ public class HomeScreen implements ActionListener, MouseListener {
                     try {
                         Executor executor = Executors.newSingleThreadExecutor();
                         executor.execute(this::saveSignedFile);
-                        selectedPdfFilePath = null;
+                        selectedDocumentFilePath = null;
                         displayPdf.closePdf();
+                        displayPdf.openPdf("src/main/resources/docs/Welcome.pdf");
                     } catch (Exception e) {
-                        showErrorMessage(e.getMessage());
+                        showErrorMessage(e.getMessage(),homeScreenFrame);
                         throw new RuntimeException(e);
                     }
                 }
@@ -241,40 +216,114 @@ public class HomeScreen implements ActionListener, MouseListener {
         menubarPanel.add(sign);
         menubarPanel.add(save);
         menuContainer.add(menubarPanel,BorderLayout.NORTH);
-        imagePreviewPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
         imagePreviewPanel.add(previewImageLabel);
         imagePreviewPanel.add(previewImageText);
         menuContainer.add(imagePreviewPanel,BorderLayout.SOUTH);
         homeScreenFrame.add(menuContainer,BorderLayout.NORTH);
         homeScreenFrame.add(pdfContentPanel,BorderLayout.CENTER);
-        homeScreenFrame.pack();
         homeScreenFrame.setLocationRelativeTo(null);
         homeScreenFrame.setVisible(true);
     }
 
+    private void initIcons(){
+        dohatecLogo = new ImageIcon("src/main/resources/images/Dohatec.png");
+        defaultSignatureImage = new ImageIcon("src/main/resources/images/DefaultSignature.png");
+        openIcon = new ImageIcon("src/main/resources/images/Open.gif");
+        signIcon = new ImageIcon("src/main/resources/images/Sign.gif");
+        saveIcon = new ImageIcon("src/main/resources/images/Save.gif");
+        imageIcon = new ImageIcon("src/main/resources/images/Image.gif");
+        loaderIcon = new ImageIcon("src/main/resources/images/Loader.gif");
+    }
+
+    private void createHomeScreenFrame(){
+        homeScreenFrame = new JFrame();
+        homeScreenFrame.setTitle("Dohatec Digital Signature Tool 2 Beta");
+        homeScreenFrame.setIconImage(dohatecLogo.getImage());
+        homeScreenFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        homeScreenFrame.setSize(1200,675);
+        homeScreenFrame.setLayout(new BorderLayout());
+        homeScreenFrame.getContentPane().setBackground(new Color(0xB3B3B3));
+    }
+
+    private void createMenuContainer(){
+        menuContainer = new JPanel();
+        menuContainer.setLayout(new BorderLayout());
+    }
+
+    private void createMenubarPanel() {
+        menubarPanel = new JPanel();
+        menubarPanel.setBackground(new Color(0xAACCFF));
+        menubarPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+    }
+
+    private void createImagePreviewPanel() {
+        imagePreviewPanel = new JPanel();
+        imagePreviewPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+        imagePreviewPanel.setSize(400,250);
+        imagePreviewPanel.setBackground(new Color(0x76A9F8));
+    }
+
+    private void setSignatureImagePreview(){
+        try{
+            lastSignatureImageLocationFile = new File("C:/DohatecCA_DST2/lastSignatureImageLocationPath.txt");
+
+            previewImageLabel = new JLabel();
+            previewImageLabel.setPreferredSize(new Dimension(250,100));
+
+            previewImageText = new JFormattedTextField();
+            previewImageText.setFont(new Font("Nunito",Font.PLAIN,18));
+            previewImageText.setBackground(null);
+            previewImageText.setEditable(false);
+            previewImageText.setBorder(null);
+
+            if(Files.exists(Path.of("C:/DohatecCA_DST2/lastSignatureImageLocationPath.txt"))){
+                BufferedReader fileReader = new BufferedReader(new FileReader(lastSignatureImageLocationFile));
+                signatureImageFilePath = fileReader.readLine();
+                fileReader.close();
+
+                previewImage = new ImageIcon(
+                        new ImageIcon(signatureImageFilePath)
+                                .getImage()
+                                .getScaledInstance(250,100,Image.SCALE_DEFAULT)
+                );
+                previewImageLabel.setIcon(previewImage);
+                previewImageText.setText("Image obtained from last selection.");
+                previewImageText.setForeground(new Color(0x51F851));
+            }
+            else{
+                previewImageLabel.setIcon(defaultSignatureImage);
+                previewImageText.setText("Select your signature image.");
+                previewImageText.setForeground(new Color(0xF50606));
+            }
+        }
+        catch (Exception e){
+            showErrorMessage(e.getMessage(),homeScreenFrame);
+        }
+    }
+
     private void saveSignedFile() {
         try{
+            showSavingWindow();
+
             FileInputStream fis = new FileInputStream("C://DohatecCA_DST2/temp.pdf");
             FileOutputStream fos = new FileOutputStream(signedFileSaveLocationPath);
 
-            showSavingWindow();
-
             int readBytes;
-            initialSizeOfSignedFile = (float)fis.available()/1000000;
+            initialSizeOfSignedFileMB = (float)fis.available()/1000000;
             while((readBytes=fis.read()) != -1){
                 float leftToWriteMB = (float)fis.available()/1000000;
-                //publish(initialSizeOfSignedFile-leftToWriteMB);
-                writtenSizeOfSignedFile = initialSizeOfSignedFile-leftToWriteMB;
-                loaderLabel.setText(String.format("Saved %.3f MB of %.3f MB",writtenSizeOfSignedFile,initialSizeOfSignedFile));
+                writtenSizeOfSignedFileMB = initialSizeOfSignedFileMB -leftToWriteMB;
+                loaderLabel.setText(String.format("Saved %.3f MB of %.3f MB", writtenSizeOfSignedFileMB, initialSizeOfSignedFileMB));
                 fos.write(readBytes);
             }
 
             closeSavingWindow();
+            new File("C://DohatecCA_DST2/temp.pdf").delete();
             fis.close();
             fos.close();
         }
         catch (Exception e) {
-            showErrorMessage(e.getMessage());
+            showErrorMessage(e.getMessage(),homeScreenFrame);
             throw new RuntimeException(e);
         }
     }
@@ -304,22 +353,6 @@ public class HomeScreen implements ActionListener, MouseListener {
 
     private void closeSavingWindow() {
         savingLoaderFrame.dispose();
-    }
-    private void showWarningMessage(String message){
-        JOptionPane.showMessageDialog(
-                homeScreenFrame,
-                message,
-                "Warning",
-                JOptionPane.WARNING_MESSAGE
-        );
-    }
-    private void showErrorMessage(String message){
-        JOptionPane.showMessageDialog(
-                homeScreenFrame,
-                message,
-                "Error",
-                JOptionPane.ERROR_MESSAGE
-        );
     }
 
     @Override
