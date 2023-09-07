@@ -58,7 +58,7 @@ public class HomeScreen implements ActionListener, MouseListener {
         setSignatureImagePreview();
 
         pdfContentPanel = displayPdf.getPdfViewerPanel();
-        displayPdf.openPdf("src/main/resources/docs/Welcome.pdf");
+        displayPdf.openPdf("docs/Welcome.pdf");
 
         open = new JButton();
         open.setBackground(null);
@@ -201,7 +201,7 @@ public class HomeScreen implements ActionListener, MouseListener {
                         executor.execute(this::saveSignedFile);
                         selectedDocumentFilePath = null;
                         displayPdf.closePdf();
-                        displayPdf.openPdf("src/main/resources/docs/Welcome.pdf");
+                        displayPdf.openPdf("docs/Welcome.pdf");
                     } catch (Exception e) {
                         showErrorMessage(e.getMessage(),homeScreenFrame);
                         throw new RuntimeException(e);
@@ -226,13 +226,13 @@ public class HomeScreen implements ActionListener, MouseListener {
     }
 
     private void initIcons(){
-        dohatecLogo = new ImageIcon("src/main/resources/images/Dohatec.png");
-        defaultSignatureImage = new ImageIcon("src/main/resources/images/DefaultSignature.png");
-        openIcon = new ImageIcon("src/main/resources/images/Open.gif");
-        signIcon = new ImageIcon("src/main/resources/images/Sign.gif");
-        saveIcon = new ImageIcon("src/main/resources/images/Save.gif");
-        imageIcon = new ImageIcon("src/main/resources/images/Image.gif");
-        loaderIcon = new ImageIcon("src/main/resources/images/Loader.gif");
+        dohatecLogo = new ImageIcon("images/Dohatec.png");
+        defaultSignatureImage = new ImageIcon("images/DefaultSignature.png");
+        openIcon = new ImageIcon("images/Open.gif");
+        signIcon = new ImageIcon("images/Sign.gif");
+        saveIcon = new ImageIcon("images/Save.gif");
+        imageIcon = new ImageIcon("images/Image.gif");
+        loaderIcon = new ImageIcon("images/Loader.gif");
     }
 
     private void createHomeScreenFrame(){
