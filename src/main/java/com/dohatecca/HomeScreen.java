@@ -206,7 +206,7 @@ public class HomeScreen implements ActionListener, MouseListener {
                         executor.execute(this::saveSignedFile);
                         selectedDocumentFilePath = null;
                         displayPdf.closePdf();
-                        displayPdf.openPdf("docs/Welcome.pdf");
+                        displayPdf.openPdf("src/main/resources/docs/Welcome.pdf");
                     } catch (Exception e) {
                         showErrorMessage(e.getMessage(),homeScreenFrame);
                         throw new RuntimeException(e);
