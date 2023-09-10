@@ -4,7 +4,7 @@ import org.icepdf.ri.common.SwingController;
 import org.icepdf.ri.common.SwingViewBuilder;
 import javax.swing.*;
 
-public class DisplayPdf {
+public class PdfViewer {
     private final SwingController controller = new SwingController();
     private final SwingViewBuilder factory = new SwingViewBuilder(controller);
     private final JPanel viewerPanel = factory.buildViewerPanel();

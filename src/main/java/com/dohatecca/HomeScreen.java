@@ -45,9 +45,11 @@ public class HomeScreen implements ActionListener, MouseListener {
     private Float initialSizeOfSignedFileMB;
     private Float writtenSizeOfSignedFileMB;
     private File lastSignatureImageLocationFile;
+    private static PdfViewer pdfViewer;
+    private static PdfConverter pdfConverter;
     public HomeScreen() {
-        DisplayPdf displayPdf = new DisplayPdf();
-        PdfConverter pdfConverter = new PdfConverter();
+        initPdfViewer();
+        initPdfConverter();
 
 
         initIcons();
@@ -56,165 +58,10 @@ public class HomeScreen implements ActionListener, MouseListener {
         createMenubarPanel();
         createImagePreviewPanel();
         setSignatureImagePreview();
-
-        pdfContentPanel = displayPdf.getPdfViewerPanel();
-        displayPdf.openPdf("src/main/resources/docs/Welcome.pdf");
-
-        open = new JButton();
-        open.setBackground(null);
-        open.setBorder(null);
-        open.setFocusable(false);
-        open.setText("Open");
-        open.setIcon(openIcon);
-        open.setFont(new Font("Nunito",Font.PLAIN,18));
-        open.addActionListener(event -> {
-            JFileChooser documentFileChooser = new JFileChooser();
-            FileNameExtensionFilter pdfFilter = new FileNameExtensionFilter(
-                    "PDF files",
-                    "pdf"
-            );
-            FileNameExtensionFilter imageFilter = new FileNameExtensionFilter(
-                    "Image files",
-                    "jpg","png","gif","bmp"
-            );
-            documentFileChooser.addChoosableFileFilter(pdfFilter);
-            documentFileChooser.addChoosableFileFilter(imageFilter);
-            documentFileChooser.setFileFilter(pdfFilter);
-            int isSelected = documentFileChooser.showOpenDialog(homeScreenFrame);
-            if(isSelected == JFileChooser.APPROVE_OPTION) {
-                File selectedDocumentFile = documentFileChooser.getSelectedFile();
-                selectedDocumentFilePath = selectedDocumentFile.getAbsolutePath();
-                if(pdfFilter.accept(selectedDocumentFile)){
-                    displayPdf.openPdf(selectedDocumentFilePath);
-                }
-                else if(imageFilter.accept(selectedDocumentFile)){
-                    pdfConverter.convertImageToPdf(selectedDocumentFilePath);
-                    selectedDocumentFilePath = "C:/DohatecCA_DST2/tempI2PFile.pdf";
-                    if(Files.exists(Path.of(selectedDocumentFilePath))){
-                        displayPdf.openPdf("C:/DohatecCA_DST2/tempI2PFile.pdf");
-                    }
-                }
-                else{
-                    showErrorMessage("Invalid file type.",homeScreenFrame);
-                }
-
-            }
-        });
-        open.addMouseListener(this);
-
-        selectImage = new JButton();
-        selectImage.setBackground(null);
-        selectImage.setBorder(null);
-        selectImage.setFocusable(false);
-        selectImage.setText("Select Image");
-        selectImage.setIcon(imageIcon);
-        selectImage.setFont(new Font("Nunito",Font.PLAIN,18));
-        selectImage.addActionListener(event -> {
-                    JFileChooser imageFileChooser = new JFileChooser();
-                    FileNameExtensionFilter imageFilter = new FileNameExtensionFilter(
-                            "Image files",
-                            "jpg","png","gif","bmp"
-                    );
-                    imageFileChooser.setFileFilter(imageFilter);
-
-                    int isSelected = imageFileChooser.showOpenDialog(homeScreenFrame);
-                    if(isSelected == JFileChooser.APPROVE_OPTION) {
-                        signatureImageFilePath = imageFileChooser.getSelectedFile().getAbsolutePath();
-                        try{
-                            if(!Files.isDirectory(Path.of("C:/DohatecCA_DST2/"))){
-                                File dohatecCADST2Dir = new File("C:/DohatecCA_DST2/");
-                                dohatecCADST2Dir.mkdirs();
-                            }
-                            lastSignatureImageLocationFile = new File("C:/DohatecCA_DST2/lastSignatureImageLocationPath.txt");
-                            FileWriter fileWriter = new FileWriter(lastSignatureImageLocationFile);
-                            fileWriter.write(signatureImageFilePath);
-                            fileWriter.close();
-                        }
-                        catch(Exception e){
-                            showErrorMessage(e.getMessage(),homeScreenFrame);
-                        }
-                        previewImage = new ImageIcon(
-                                new ImageIcon(signatureImageFilePath)
-                                        .getImage()
-                                        .getScaledInstance(250,100,Image.SCALE_DEFAULT)
-                        );
-                        previewImageLabel.setIcon(previewImage);
-                        previewImageText.setText("You have selected this image.");
-                        previewImageText.setForeground(new Color(0x51F851));
-                    }
-                });
-        selectImage.addMouseListener(this);
-
-        sign = new JButton();
-        sign.setBackground(null);
-        sign.setBorder(null);
-        sign.setFocusable(false);
-        sign.setText("Sign");
-        sign.setIcon(signIcon);
-        sign.setFont(new Font("Nunito",Font.PLAIN,18));
-        sign.addActionListener(event -> {
-            if(selectedDocumentFilePath == null || selectedDocumentFilePath.equals("")) {
-                showWarningMessage("Please open a PDF document first.",homeScreenFrame);
-            }
-            else if(signatureImageFilePath == null || signatureImageFilePath.equals("")) {
-                showWarningMessage("Please select a signature image.",homeScreenFrame);
-            }
-            else{
-                Signature signature = new Signature();
-                signature.initProvider();
-                signature.initKeyStore();
-                signature.setPdfFilePath(selectedDocumentFilePath);
-                signature.setSignatureImagePath(signatureImageFilePath);
-                signature.setPageNumber(displayPdf.getCurrentPageNumber()+1);
-                signature.selectKeystoreAndSign();
-            }
-        });
-        sign.addMouseListener(this);
-
-        save = new JButton();
-        save.setBackground(null);
-        save.setBorder(null);
-        save.setFocusable(false);
-        save.setText("Save");
-        save.setIcon(saveIcon);
-        save.setFont(new Font("Nunito",Font.PLAIN,18));
-        save.addActionListener(event -> {
-            if(selectedDocumentFilePath == null || selectedDocumentFilePath.equals("")) {
-                showWarningMessage("Please open a PDF document first.",homeScreenFrame);
-            }
-            else if (signatureImageFilePath == null || signatureImageFilePath.equals("")) {
-                showWarningMessage("Please select a signature image.",homeScreenFrame);
-            }
-            else if (!Files.exists(Path.of("C://DohatecCA_DST2/temp.pdf"))) {
-                showWarningMessage("Please sign your document before saving.",homeScreenFrame);
-            }
-            else {
-                JFileChooser saveLocationSelector = new JFileChooser();
-                FileNameExtensionFilter pdfFilter = new FileNameExtensionFilter(
-                        "PDF files",
-                        "pdf"
-                );
-                saveLocationSelector.setFileFilter(pdfFilter);
-                int isSelected = saveLocationSelector.showSaveDialog(homeScreenFrame);
-                if(isSelected == JFileChooser.APPROVE_OPTION){
-                    signedFileSaveLocationPath = saveLocationSelector.getSelectedFile().getAbsolutePath();
-                    if(!signedFileSaveLocationPath.endsWith(".pdf")){
-                        signedFileSaveLocationPath += ".pdf";
-                    }
-                    try {
-                        Executor executor = Executors.newSingleThreadExecutor();
-                        executor.execute(this::saveSignedFile);
-                        selectedDocumentFilePath = null;
-                        displayPdf.closePdf();
-                        displayPdf.openPdf("src/main/resources/docs/Welcome.pdf");
-                    } catch (Exception e) {
-                        showErrorMessage(e.getMessage(),homeScreenFrame);
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-        });
-        save.addMouseListener(this);
+        createOpenButton();
+        createSelectImageButton();
+        createSignButton();
+        createSaveButton();
 
         menubarPanel.add(open);
         menubarPanel.add(selectImage);
@@ -228,6 +75,16 @@ public class HomeScreen implements ActionListener, MouseListener {
         homeScreenFrame.add(pdfContentPanel,BorderLayout.CENTER);
         homeScreenFrame.setLocationRelativeTo(null);
         homeScreenFrame.setVisible(true);
+    }
+
+    private void initPdfViewer(){
+        pdfViewer = new PdfViewer();
+        pdfContentPanel = pdfViewer.getPdfViewerPanel();
+        pdfViewer.openPdf("src/main/resources/docs/Welcome.pdf");
+    }
+
+    private void initPdfConverter(){
+        pdfConverter = new PdfConverter();
     }
 
     private void initIcons(){
@@ -307,6 +164,168 @@ public class HomeScreen implements ActionListener, MouseListener {
         }
     }
 
+    private void createOpenButton(){
+        open = new JButton();
+        open.setBackground(null);
+        open.setBorder(null);
+        open.setFocusable(false);
+        open.setText("Open");
+        open.setIcon(openIcon);
+        open.setFont(new Font("Nunito",Font.PLAIN,18));
+        open.addActionListener(event -> {
+            JFileChooser documentFileChooser = new JFileChooser();
+            FileNameExtensionFilter pdfFilter = new FileNameExtensionFilter(
+                    "PDF files",
+                    "pdf"
+            );
+            FileNameExtensionFilter imageFilter = new FileNameExtensionFilter(
+                    "Image files",
+                    "jpg","png","gif","bmp"
+            );
+            documentFileChooser.addChoosableFileFilter(pdfFilter);
+            documentFileChooser.addChoosableFileFilter(imageFilter);
+            documentFileChooser.setFileFilter(pdfFilter);
+            int isSelected = documentFileChooser.showOpenDialog(homeScreenFrame);
+            if(isSelected == JFileChooser.APPROVE_OPTION) {
+                File selectedDocumentFile = documentFileChooser.getSelectedFile();
+                selectedDocumentFilePath = selectedDocumentFile.getAbsolutePath();
+                if(pdfFilter.accept(selectedDocumentFile)){
+                    pdfViewer.openPdf(selectedDocumentFilePath);
+                }
+                else if(imageFilter.accept(selectedDocumentFile)){
+                    pdfConverter.convertImageToPdf(selectedDocumentFilePath);
+                    selectedDocumentFilePath = "C:/DohatecCA_DST2/tempI2PFile.pdf";
+                    if(Files.exists(Path.of(selectedDocumentFilePath))){
+                        pdfViewer.openPdf("C:/DohatecCA_DST2/tempI2PFile.pdf");
+                    }
+                }
+                else{
+                    showErrorMessage("Invalid file type.",homeScreenFrame);
+                }
+
+            }
+        });
+        open.addMouseListener(this);
+    }
+
+    private void createSelectImageButton(){
+        selectImage = new JButton();
+        selectImage.setBackground(null);
+        selectImage.setBorder(null);
+        selectImage.setFocusable(false);
+        selectImage.setText("Select Image");
+        selectImage.setIcon(imageIcon);
+        selectImage.setFont(new Font("Nunito",Font.PLAIN,18));
+        selectImage.addActionListener(event -> {
+            JFileChooser imageFileChooser = new JFileChooser();
+            FileNameExtensionFilter imageFilter = new FileNameExtensionFilter(
+                    "Image files",
+                    "jpg","png","gif","bmp"
+            );
+            imageFileChooser.setFileFilter(imageFilter);
+
+            int isSelected = imageFileChooser.showOpenDialog(homeScreenFrame);
+            if(isSelected == JFileChooser.APPROVE_OPTION) {
+                signatureImageFilePath = imageFileChooser.getSelectedFile().getAbsolutePath();
+                try{
+                    if(!Files.isDirectory(Path.of("C:/DohatecCA_DST2/"))){
+                        File dohatecCADST2Dir = new File("C:/DohatecCA_DST2/");
+                        dohatecCADST2Dir.mkdirs();
+                    }
+                    lastSignatureImageLocationFile = new File("C:/DohatecCA_DST2/lastSignatureImageLocationPath.txt");
+                    FileWriter fileWriter = new FileWriter(lastSignatureImageLocationFile);
+                    fileWriter.write(signatureImageFilePath);
+                    fileWriter.close();
+                }
+                catch(Exception e){
+                    showErrorMessage(e.getMessage(),homeScreenFrame);
+                }
+                previewImage = new ImageIcon(
+                        new ImageIcon(signatureImageFilePath)
+                                .getImage()
+                                .getScaledInstance(250,100,Image.SCALE_DEFAULT)
+                );
+                previewImageLabel.setIcon(previewImage);
+                previewImageText.setText("You have selected this image.");
+                previewImageText.setForeground(new Color(0x51F851));
+            }
+        });
+        selectImage.addMouseListener(this);
+    }
+
+    private void createSignButton(){
+        sign = new JButton();
+        sign.setBackground(null);
+        sign.setBorder(null);
+        sign.setFocusable(false);
+        sign.setText("Sign");
+        sign.setIcon(signIcon);
+        sign.setFont(new Font("Nunito",Font.PLAIN,18));
+        sign.addActionListener(event -> {
+            if(selectedDocumentFilePath == null || selectedDocumentFilePath.equals("")) {
+                showWarningMessage("Please open a PDF document first.",homeScreenFrame);
+            }
+            else if(signatureImageFilePath == null || signatureImageFilePath.equals("")) {
+                showWarningMessage("Please select a signature image.",homeScreenFrame);
+            }
+            else{
+                SignScreen signScreen = new SignScreen();
+                signScreen.setPdfFilePath(selectedDocumentFilePath);
+                signScreen.setSignatureImagePath(signatureImageFilePath);
+                signScreen.setPageNumber(pdfViewer.getCurrentPageNumber()+1);
+                signScreen.sign();
+            }
+        });
+        sign.addMouseListener(this);
+    }
+
+    private void createSaveButton(){
+        save = new JButton();
+        save.setBackground(null);
+        save.setBorder(null);
+        save.setFocusable(false);
+        save.setText("Save");
+        save.setIcon(saveIcon);
+        save.setFont(new Font("Nunito",Font.PLAIN,18));
+        save.addActionListener(event -> {
+            if(selectedDocumentFilePath == null || selectedDocumentFilePath.equals("")) {
+                showWarningMessage("Please open a PDF document first.",homeScreenFrame);
+            }
+            else if (signatureImageFilePath == null || signatureImageFilePath.equals("")) {
+                showWarningMessage("Please select a signature image.",homeScreenFrame);
+            }
+            else if (!Files.exists(Path.of("C://DohatecCA_DST2/temp.pdf"))) {
+                showWarningMessage("Please sign your document before saving.",homeScreenFrame);
+            }
+            else {
+                JFileChooser saveLocationSelector = new JFileChooser();
+                FileNameExtensionFilter pdfFilter = new FileNameExtensionFilter(
+                        "PDF files",
+                        "pdf"
+                );
+                saveLocationSelector.setFileFilter(pdfFilter);
+                int isSelected = saveLocationSelector.showSaveDialog(homeScreenFrame);
+                if(isSelected == JFileChooser.APPROVE_OPTION){
+                    signedFileSaveLocationPath = saveLocationSelector.getSelectedFile().getAbsolutePath();
+                    if(!signedFileSaveLocationPath.endsWith(".pdf")){
+                        signedFileSaveLocationPath += ".pdf";
+                    }
+                    try {
+                        Executor executor = Executors.newSingleThreadExecutor();
+                        executor.execute(this::saveSignedFile);
+                        selectedDocumentFilePath = null;
+                        pdfViewer.closePdf();
+                        pdfViewer.openPdf("src/main/resources/docs/Welcome.pdf");
+                    } catch (Exception e) {
+                        showErrorMessage(e.getMessage(),homeScreenFrame);
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        });
+        save.addMouseListener(this);
+    }
+
     private void saveSignedFile() {
         try{
             showSavingWindow();
@@ -324,7 +343,7 @@ public class HomeScreen implements ActionListener, MouseListener {
             }
 
             closeSavingWindow();
-            new File("C://DohatecCA_DST2/temp.pdf").delete();
+            new File("C:/DohatecCA_DST2/temp.pdf").delete();
             fis.close();
             fos.close();
         }

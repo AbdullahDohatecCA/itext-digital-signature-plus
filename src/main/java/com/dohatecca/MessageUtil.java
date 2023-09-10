@@ -20,4 +20,13 @@ public class MessageUtil {
                 JOptionPane.ERROR_MESSAGE
         );
     }
+
+    static void showGeneralMessage(String message, Component parentComponent){
+        JOptionPane.showMessageDialog(
+                parentComponent,
+                message,
+                "Message",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+    }
 }
