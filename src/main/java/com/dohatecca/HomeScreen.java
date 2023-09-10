@@ -58,7 +58,7 @@ public class HomeScreen implements ActionListener, MouseListener {
         setSignatureImagePreview();
 
         pdfContentPanel = displayPdf.getPdfViewerPanel();
-        displayPdf.openPdf("docs/Welcome.pdf");
+        displayPdf.openPdf("src/main/resources/docs/Welcome.pdf");
 
         open = new JButton();
         open.setBackground(null);
