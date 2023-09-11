@@ -21,7 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.dohatecca.MessageUtil.showErrorMessage;
+import static com.dohatecca.DesignElements.getProgramFilesPath;
+import static com.dohatecca.Message.showErrorMessage;
 
 public class Signature {
     public void sign(
@@ -42,14 +43,11 @@ public class Signature {
             ITSAClient tsaClient = getTimestampAuthorityClient(certificateChain);
             List<ICrlClient> crlClientList = getCRLClients(certificateChain);
 
-            File tempSaveDirectory = new File("C:/DohatecCA_DST2/");
-            boolean directoryCreationSuccess = tempSaveDirectory.mkdirs();
-            System.out.println("Directory Created: "+directoryCreationSuccess);
-            FileOutputStream fos = new FileOutputStream("C:/DohatecCA_DST2/temp.pdf");
+            FileOutputStream fos = new FileOutputStream(getProgramFilesPath()+"/temp.pdf");
             PdfReader reader = new PdfReader(pdfFilePath);
             PdfSigner signer = new PdfSigner(
                     reader,
-                    new FileOutputStream("C:/DohatecCA_DST2/temp.pdf"),
+                    fos,
                     new StampingProperties().useAppendMode()
             );
             signer.setFieldName(String.format("Digital Signature %d",numberOfExistingSignatures+1));
@@ -216,7 +214,7 @@ public class Signature {
 
     private ITSAClient getTimestampAuthorityClient(Certificate[] certificateChain){
         try{
-            ITSAClient tsaClient = null;
+            ITSAClient tsaClient = new TSAClientBouncyCastle("https://freetsa.org/tsr");
             for (Certificate certificate : certificateChain) {
                 X509Certificate cert = (X509Certificate) certificate;
                 String tsaUrl = CertificateUtil.getTSAURL(cert);

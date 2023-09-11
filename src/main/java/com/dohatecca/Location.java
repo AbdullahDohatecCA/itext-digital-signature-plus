@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import static com.dohatecca.MessageUtil.showErrorMessage;
+import static com.dohatecca.Message.showErrorMessage;
 
 public class Location {
     public static String getLocationFromIP(){

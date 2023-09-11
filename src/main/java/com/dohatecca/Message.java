@@ -3,7 +3,7 @@ package com.dohatecca;
 import javax.swing.*;
 import java.awt.*;
 
-public class MessageUtil {
+public class Message {
     static void showWarningMessage(String message, Component parentComponent){
         JOptionPane.showMessageDialog(
                 parentComponent,
@@ -27,6 +27,15 @@ public class MessageUtil {
                 message,
                 "Message",
                 JOptionPane.INFORMATION_MESSAGE
+        );
+    }
+
+    static String showQuestionMessage(String message, Component parentComponent){
+        return JOptionPane.showInputDialog(
+                parentComponent,
+                message,
+                "Question",
+                JOptionPane.QUESTION_MESSAGE
         );
     }
 }
