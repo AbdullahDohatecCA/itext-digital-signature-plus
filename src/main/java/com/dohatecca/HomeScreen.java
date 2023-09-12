@@ -81,7 +81,7 @@ public class HomeScreen implements ActionListener, MouseListener {
     private void initPdfViewer(){
         pdfViewer = new PdfViewer();
         pdfContentPanel = pdfViewer.getPdfViewerPanel();
-        pdfViewer.openPdf("src/main/resources/docs/Welcome.pdf");
+        pdfViewer.openPdf(getResourcesPath()+"/docs/Welcome.pdf");
     }
 
     private void initPdfConverter(){

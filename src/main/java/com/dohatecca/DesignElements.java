@@ -9,14 +9,14 @@ import static com.dohatecca.Message.showErrorMessage;
 
 public class DesignElements {
     static String getResourcesPath(){
-        return "src/main/resources";
+        return "resources";
     }
 
     static String getProgramFilesPath(){
         String systemDrive = System.getenv("SystemDrive");
         if(!Files.isDirectory(Path.of(systemDrive+"/DohatecCA/DST2"))){
             File programDir = new File(systemDrive+"/DohatecCA/DST2");
-            programDir.mkdirs();
+            System.out.println("Program Directory Created: "+programDir.mkdirs());
         }
         return systemDrive+"/DohatecCA/DST2";
     }
