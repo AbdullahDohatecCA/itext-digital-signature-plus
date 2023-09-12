@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
-  <artifact build-on-make="true" name="DohatecCA-Digital-Signature-Tool-2:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/DohatecCA_Digital_Signature_Tool_2_jar</output-path>
+  <artifact build-on-make="true" name="DohatecCA-Digital-Signature-Tool-2">
+    <output-path>$PROJECT_DIR$/out/artifacts/DohatecCA_Digital_Signature_Tool_2</output-path>
     <root id="root">
       <element id="archive" name="DohatecCA-Digital-Signature-Tool-2.jar">
         <element id="module-output" name="DohatecCA-Digital-Signature-Tool-2" />

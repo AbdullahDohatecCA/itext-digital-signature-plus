@@ -23,7 +23,7 @@ public class DesignElements {
 
     static Font getRegularFont(){
         try{
-            File regularFontFile = new File(getResourcesPath()+"/fonts/Poppins-Regular.ttf");
+            File regularFontFile = new File(getResourcesPath()+"/fonts/OpenSans.ttf");
             Font regularFont = Font.createFont(
                     Font.TRUETYPE_FONT,
                     regularFontFile
@@ -38,12 +38,12 @@ public class DesignElements {
 
     static Font getBoldFont(){
         try{
-            File boldFontFile = new File(getResourcesPath()+"/fonts/Poppins-Bold.ttf");
+            File boldFontFile = new File(getResourcesPath()+"/fonts/OpenSans.ttf");
             Font boldFont = Font.createFont(
                     Font.TRUETYPE_FONT,
                     boldFontFile
             );
-            return boldFont.deriveFont(Font.PLAIN,16);
+            return boldFont.deriveFont(Font.BOLD,16);
         }
         catch (Exception e) {
             showErrorMessage(e.getMessage(), null);
@@ -53,12 +53,12 @@ public class DesignElements {
 
     static Font getItalicFont(){
         try{
-            File italicFontFile = new File(getResourcesPath()+"/fonts/Poppins-Italic.ttf");
+            File italicFontFile = new File(getResourcesPath()+"/fonts/OpenSans.ttf");
             Font boldFont = Font.createFont(
                     Font.TRUETYPE_FONT,
                     italicFontFile
             );
-            return boldFont.deriveFont(Font.PLAIN,16);
+            return boldFont.deriveFont(Font.ITALIC,16);
         }
         catch (Exception e) {
             showErrorMessage(e.getMessage(), null);

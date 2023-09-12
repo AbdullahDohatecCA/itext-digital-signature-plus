@@ -45,7 +45,7 @@ public class SignScreen extends SwingWorker<Void,Void> {
             initKeyStore();
 
             createKeySelectionWindowHeader();
-            setAliasToCertificateInfoTable();
+            createCertificateInfoTableFromAliases();
             createKeyListTable();
             createKeyListPanel();
             createCancelButton();
@@ -80,7 +80,7 @@ public class SignScreen extends SwingWorker<Void,Void> {
         keySelectionWindow.setTitle("Keys");
         keySelectionWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         keySelectionWindow.setLayout(new BorderLayout());
-        keySelectionWindow.setSize(600,337);
+        keySelectionWindow.setSize(1000,337);
         keySelectionWindow.add(headerPanel,BorderLayout.NORTH);
         keySelectionWindow.add(keyListPanel,BorderLayout.CENTER);
         keySelectionWindow.add(footerPanel,BorderLayout.SOUTH);
@@ -92,17 +92,17 @@ public class SignScreen extends SwingWorker<Void,Void> {
         headerPanel = new JPanel();
         headerLabel = new JLabel();
         headerPanel.setSize(new Dimension(1000,100));
-        headerPanel.setBackground(getBackgroundColor());
+        headerPanel.setBackground(getSecondaryColor());
         headerPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         headerLabel.setText("Select Key");
         headerLabel.setFont(getBoldFont());
         headerLabel.setBackground(null);
-        headerLabel.setForeground(getPrimaryColor());
+        headerLabel.setForeground(getBackgroundColor());
         headerLabel.setBorder(null);
         headerPanel.add(headerLabel);
     }
 
-    private void setAliasToCertificateInfoTable(){
+    private void createCertificateInfoTableFromAliases(){
         try{
             aliases = keyStore.aliases();
             certificateInfoTable = new String[50][4];
@@ -110,13 +110,11 @@ public class SignScreen extends SwingWorker<Void,Void> {
             while(aliases.hasMoreElements()){
                 String currentAlias = aliases.nextElement();
                 X509Certificate certificate = (X509Certificate) keyStore.getCertificate(currentAlias);
-                String subject = certificate.getSubjectX500Principal().getName().substring(3);
                 String issuer = certificate.getIssuerX500Principal().getName();
-                int indexOfIssuerCN = issuer.indexOf("CN=");
-                String issuerCN = issuer.substring(indexOfIssuerCN+3);
+                String issuerCN = issuer.substring(issuer.indexOf("CN=")+3);
                 issuerCN = issuerCN.substring(0,issuerCN.indexOf(","));
                 if(!issuerCN.contains("Dohatec")) continue;
-                certificateInfoTable[i][0] = subject;
+                certificateInfoTable[i][0] = currentAlias;
                 certificateInfoTable[i][1] = certificate.getNotBefore().toString();
                 certificateInfoTable[i][2] = certificate.getNotAfter().toString();
                 certificateInfoTable[i][3] = issuerCN;
@@ -148,7 +146,7 @@ public class SignScreen extends SwingWorker<Void,Void> {
     private void createKeySelectionWindowFooter(){
         footerPanel = new JPanel();
         footerPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        footerPanel.setBackground(getBackgroundColor());
+        footerPanel.setBackground(getSecondaryColor());
         footerPanel.add(cancelButton);
         footerPanel.add(okButton);
     }
