@@ -1,5 +1,6 @@
-package com.dohatecca;
+package com.dohatecca.application;
 
+import com.dohatecca.util.Location;
 import com.itextpdf.forms.PdfAcroForm;
 import com.itextpdf.forms.fields.PdfFormField;
 import com.itextpdf.forms.fields.PdfSignatureFormField;
@@ -11,7 +12,6 @@ import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.StampingProperties;
 import com.itextpdf.signatures.*;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.security.KeyStore;
 import java.security.PrivateKey;
@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.dohatecca.DesignElements.getProgramFilesPath;
-import static com.dohatecca.Message.showErrorMessage;
+import static com.dohatecca.util.DesignElements.getProgramFilesPath;
+import static com.dohatecca.util.Message.showErrorMessage;
 
 public class Signature {
     public void sign(

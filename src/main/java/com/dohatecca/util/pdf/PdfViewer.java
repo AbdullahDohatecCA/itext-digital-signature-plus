@@ -1,4 +1,4 @@
-package com.dohatecca;
+package com.dohatecca.util.pdf;
 
 import org.icepdf.ri.common.SwingController;
 import org.icepdf.ri.common.SwingViewBuilder;

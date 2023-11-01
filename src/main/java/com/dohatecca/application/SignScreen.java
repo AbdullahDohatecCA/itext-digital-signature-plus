@@ -1,5 +1,6 @@
-package com.dohatecca;
+package com.dohatecca.application;
 
+import com.dohatecca.application.Signature;
 import com.itextpdf.kernel.pdf.*;
 import com.itextpdf.signatures.*;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -11,8 +12,8 @@ import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 
-import static com.dohatecca.DesignElements.*;
-import static com.dohatecca.Message.*;
+import static com.dohatecca.util.DesignElements.*;
+import static com.dohatecca.util.Message.*;
 
 public class SignScreen extends SwingWorker<Void,Void> {
     private JFrame keySelectionWindow;

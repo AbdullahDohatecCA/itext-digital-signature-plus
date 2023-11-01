@@ -1,4 +1,7 @@
-package com.dohatecca;
+package com.dohatecca.application;
+
+import com.dohatecca.util.pdf.PdfConverter;
+import com.dohatecca.util.pdf.PdfViewer;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -13,9 +16,9 @@ import java.nio.file.Path;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import static com.dohatecca.DesignElements.*;
-import static com.dohatecca.Message.showErrorMessage;
-import static com.dohatecca.Message.showWarningMessage;
+import static com.dohatecca.util.DesignElements.*;
+import static com.dohatecca.util.Message.showErrorMessage;
+import static com.dohatecca.util.Message.showWarningMessage;
 
 public class HomeScreen implements ActionListener, MouseListener {
     private JFrame homeScreenFrame;

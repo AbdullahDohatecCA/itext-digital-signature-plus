@@ -1,18 +1,18 @@
-package com.dohatecca;
+package com.dohatecca.util;
 
 import java.awt.*;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static com.dohatecca.Message.showErrorMessage;
+import static com.dohatecca.util.Message.showErrorMessage;
 
 public class DesignElements {
-    static String getResourcesPath(){
+    public static String getResourcesPath(){
         return "src/main/resources";
     }
 
-    static String getProgramFilesPath(){
+    public static String getProgramFilesPath(){
         String systemDrive = System.getenv("SystemDrive");
         if(!Files.isDirectory(Path.of(systemDrive+"/DohatecCA/DST2"))){
             File programDir = new File(systemDrive+"/DohatecCA/DST2");
@@ -21,7 +21,7 @@ public class DesignElements {
         return systemDrive+"/DohatecCA/DST2";
     }
 
-    static Font getRegularFont(){
+    public static Font getRegularFont(){
         try{
             File regularFontFile = new File(getResourcesPath()+"/fonts/OpenSans.ttf");
             Font regularFont = Font.createFont(
@@ -36,7 +36,7 @@ public class DesignElements {
         }
     }
 
-    static Font getBoldFont(){
+    public static Font getBoldFont(){
         try{
             File boldFontFile = new File(getResourcesPath()+"/fonts/OpenSans.ttf");
             Font boldFont = Font.createFont(
@@ -51,7 +51,7 @@ public class DesignElements {
         }
     }
 
-    static Font getItalicFont(){
+    public static Font getItalicFont(){
         try{
             File italicFontFile = new File(getResourcesPath()+"/fonts/OpenSans.ttf");
             Font boldFont = Font.createFont(
@@ -66,27 +66,27 @@ public class DesignElements {
         }
     }
 
-    static Color getPrimaryColor(){
+    public static Color getPrimaryColor(){
         return new Color(0x0D6BA6);
     }
 
-    static Color getSecondaryColor(){
+    public static Color getSecondaryColor(){
         return new Color(0x5697BF);
     }
 
-    static Color getBackgroundColor(){
+    public static Color getBackgroundColor(){
         return new Color(0xF2F2F2);
     }
 
-    static Color getSuccessColor(){
+    public static Color getSuccessColor(){
         return new Color(0x0F6011);
     }
 
-    static Color getWarningColor(){
+    public static Color getWarningColor(){
         return new Color(0xD9BE12);
     }
 
-    static Color getDangerColor(){
+    public static Color getDangerColor(){
         return new Color(0xD91919);
     }
 }

@@ -1,10 +1,10 @@
-package com.dohatecca;
+package com.dohatecca.util;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class Message {
-    static void showWarningMessage(String message, Component parentComponent){
+    public static void showWarningMessage(String message, Component parentComponent){
         JOptionPane.showMessageDialog(
                 parentComponent,
                 message,
@@ -12,7 +12,7 @@ public class Message {
                 JOptionPane.WARNING_MESSAGE
         );
     }
-    static void showErrorMessage(String message, Component parentComponent){
+    public static void showErrorMessage(String message, Component parentComponent){
         JOptionPane.showMessageDialog(
                 parentComponent,
                 message,
@@ -21,7 +21,7 @@ public class Message {
         );
     }
 
-    static void showGeneralMessage(String message, Component parentComponent){
+    public static void showGeneralMessage(String message, Component parentComponent){
         JOptionPane.showMessageDialog(
                 parentComponent,
                 message,
@@ -30,7 +30,7 @@ public class Message {
         );
     }
 
-    static String showQuestionMessage(String message, Component parentComponent){
+    public static String showQuestionMessage(String message, Component parentComponent){
         return JOptionPane.showInputDialog(
                 parentComponent,
                 message,
