@@ -16,7 +16,7 @@ import java.nio.file.Path;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import static com.dohatecca.util.DesignElements.*;
+import static com.dohatecca.util.Config.*;
 import static com.dohatecca.util.Message.showErrorMessage;
 import static com.dohatecca.util.Message.showWarningMessage;
 

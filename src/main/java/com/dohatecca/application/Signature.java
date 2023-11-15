@@ -12,6 +12,8 @@ import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.StampingProperties;
 import com.itextpdf.signatures.*;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.security.KeyStore;
 import java.security.PrivateKey;
@@ -21,7 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.dohatecca.util.DesignElements.getProgramFilesPath;
+import static com.dohatecca.util.Config.getProgramFilesPath;
+import static com.dohatecca.util.Config.getResourcesPath;
 import static com.dohatecca.util.Message.showErrorMessage;
 
 public class Signature {
@@ -75,7 +78,7 @@ public class Signature {
                     privateKeySignature,
                     certificateChain,
                     crlClientList,
-                    null,
+                    ocspClient,
                     tsaClient,
                     0,
                     PdfSigner.CryptoStandard.CMS
@@ -214,7 +217,7 @@ public class Signature {
 
     private ITSAClient getTimestampAuthorityClient(Certificate[] certificateChain){
         try{
-            ITSAClient tsaClient = new TSAClientBouncyCastle("https://freetsa.org/tsr");
+            ITSAClient tsaClient = null;
             for (Certificate certificate : certificateChain) {
                 X509Certificate cert = (X509Certificate) certificate;
                 String tsaUrl = CertificateUtil.getTSAURL(cert);
@@ -234,7 +237,13 @@ public class Signature {
     private List<ICrlClient> getCRLClients(Certificate[] certificateChain){
         try{
             List<ICrlClient> crlClientList =  new ArrayList<ICrlClient>();
-            crlClientList.add(new CrlClientOnline(certificateChain));
+            FileInputStream is = new FileInputStream(getResourcesPath()+"/crls/dohatecca_crl.crl");
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            byte[] buf = new byte[1024*1024];
+            while (is.read(buf) != -1) {
+                baos.write(buf);
+            }
+            crlClientList.add(new CrlClientOffline(baos.toByteArray()));
             return crlClientList;
         }
         catch (Exception ex) {

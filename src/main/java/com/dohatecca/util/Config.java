@@ -7,7 +7,7 @@ import java.nio.file.Path;
 
 import static com.dohatecca.util.Message.showErrorMessage;
 
-public class DesignElements {
+public class Config {
     public static String getResourcesPath(){
         return "src/main/resources";
     }

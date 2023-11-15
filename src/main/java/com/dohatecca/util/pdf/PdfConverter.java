@@ -7,7 +7,7 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Image;
 
-import static com.dohatecca.util.DesignElements.getProgramFilesPath;
+import static com.dohatecca.util.Config.getProgramFilesPath;
 
 public class PdfConverter {
     public void convertImageToPdf(String imageFilePath){
