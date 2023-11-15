@@ -44,7 +44,7 @@ public class Signature {
 
             IOcspClient ocspClient = getOCSPClient();
             ITSAClient tsaClient = getTimestampAuthorityClient(certificateChain);
-            List<ICrlClient> crlClientList = getCRLClients(certificateChain);
+            List<ICrlClient> crlClientList = getOnlineCRLClients(certificateChain);
 
             FileOutputStream fos = new FileOutputStream(getProgramFilesPath()+"/temp.pdf");
             PdfReader reader = new PdfReader(pdfFilePath);
@@ -223,7 +223,6 @@ public class Signature {
                 String tsaUrl = CertificateUtil.getTSAURL(cert);
                 if (tsaUrl != null) {
                     tsaClient = new TSAClientBouncyCastle(tsaUrl);
-                    break;
                 }
             }
             return tsaClient;
@@ -234,7 +233,7 @@ public class Signature {
         }
     }
 
-    private List<ICrlClient> getCRLClients(Certificate[] certificateChain){
+    private List<ICrlClient> getOfflineCRLClients(Certificate[] certificateChain){
         try{
             List<ICrlClient> crlClientList =  new ArrayList<ICrlClient>();
             FileInputStream is = new FileInputStream(getResourcesPath()+"/crls/dohatecca_crl.crl");
@@ -244,6 +243,18 @@ public class Signature {
                 baos.write(buf);
             }
             crlClientList.add(new CrlClientOffline(baos.toByteArray()));
+            return crlClientList;
+        }
+        catch (Exception ex) {
+            showErrorMessage(ex.getMessage(), null);
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private List<ICrlClient> getOnlineCRLClients(Certificate[] certificateChain){
+        try{
+            List<ICrlClient> crlClientList =  new ArrayList<ICrlClient>();
+            crlClientList.add(new CrlClientOnline(certificateChain));
             return crlClientList;
         }
         catch (Exception ex) {
