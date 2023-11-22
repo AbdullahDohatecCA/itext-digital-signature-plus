@@ -1,5 +1,7 @@
 package com.dohatecca;
 
+import com.dohatecca.application.HomeScreen;
+
 import javax.swing.*;
 
 public class Main {
