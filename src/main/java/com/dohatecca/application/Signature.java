@@ -44,7 +44,7 @@ public class Signature {
 
             IOcspClient ocspClient = getOCSPClient();
             ITSAClient tsaClient = getTimestampAuthorityClient(certificateChain);
-            List<ICrlClient> crlClientList = getOnlineCRLClients(certificateChain);
+            List<ICrlClient> crlClientList = getOfflineCRLClients(certificateChain);
 
             FileOutputStream fos = new FileOutputStream(getProgramFilesPath()+"/temp.pdf");
             PdfReader reader = new PdfReader(pdfFilePath);
@@ -78,8 +78,8 @@ public class Signature {
                     privateKeySignature,
                     certificateChain,
                     crlClientList,
-                    ocspClient,
-                    tsaClient,
+                    null,
+                    null,
                     0,
                     PdfSigner.CryptoStandard.CMS
             );

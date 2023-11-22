@@ -17,8 +17,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import static com.dohatecca.util.Config.*;
-import static com.dohatecca.util.Message.showErrorMessage;
-import static com.dohatecca.util.Message.showWarningMessage;
+import static com.dohatecca.util.Message.*;
 
 public class HomeScreen implements ActionListener, MouseListener {
     private JFrame homeScreenFrame;
@@ -33,12 +32,14 @@ public class HomeScreen implements ActionListener, MouseListener {
     private JButton open;
     private JButton sign;
     private JButton save;
+    private JButton about;
     private JButton selectImage;
     private ImageIcon dohatecLogo;
     private ImageIcon openIcon;
+    private ImageIcon imageIcon;
     private ImageIcon signIcon;
     private ImageIcon saveIcon;
-    private ImageIcon imageIcon;
+    private ImageIcon aboutIcon;
     private ImageIcon previewImage;
     private ImageIcon defaultSignatureImage;
     private ImageIcon savingProgressIcon;
@@ -66,11 +67,13 @@ public class HomeScreen implements ActionListener, MouseListener {
         createSelectImageButton();
         createSignButton();
         createSaveButton();
+        createAboutButton();
 
         menubarPanel.add(open);
         menubarPanel.add(selectImage);
         menubarPanel.add(sign);
         menubarPanel.add(save);
+        menubarPanel.add(about);
         menuContainer.add(menubarPanel,BorderLayout.NORTH);
         imagePreviewPanel.add(previewImageLabel);
         imagePreviewPanel.add(previewImageText);
@@ -92,13 +95,46 @@ public class HomeScreen implements ActionListener, MouseListener {
     }
 
     private void initIcons(){
-        dohatecLogo = new ImageIcon(getResourcesPath()+"/images/Dohatec.png");
-        defaultSignatureImage = new ImageIcon(getResourcesPath()+"/images/DefaultSignature.png");
-        openIcon = new ImageIcon(getResourcesPath()+"/images/Open.gif");
-        signIcon = new ImageIcon(getResourcesPath()+"/images/Sign.gif");
-        saveIcon = new ImageIcon(getResourcesPath()+"/images/Save.gif");
-        imageIcon = new ImageIcon(getResourcesPath()+"/images/Image.gif");
-        savingProgressIcon = new ImageIcon(getResourcesPath()+"/images/Loader.gif");
+        dohatecLogo = new ImageIcon(
+                new ImageIcon(getResourcesPath()+"/images/Dohatec.png")
+                        .getImage()
+                        .getScaledInstance(512,512,Image.SCALE_DEFAULT)
+        );
+        defaultSignatureImage = new ImageIcon(
+                new ImageIcon(getResourcesPath()+"/images/DefaultSignature.png")
+                        .getImage()
+                        .getScaledInstance(256,128,Image.SCALE_DEFAULT)
+        );
+        openIcon = new ImageIcon(
+                new ImageIcon(getResourcesPath()+"/images/Open.gif")
+                        .getImage()
+                        .getScaledInstance(64,64,Image.SCALE_DEFAULT)
+        );
+        imageIcon = new ImageIcon(
+                new ImageIcon(getResourcesPath()+"/images/Image.gif")
+                        .getImage()
+                        .getScaledInstance(64,64,Image.SCALE_DEFAULT)
+        );
+        signIcon = new ImageIcon(
+                new ImageIcon(getResourcesPath()+"/images/Sign.gif")
+                        .getImage()
+                        .getScaledInstance(64,64,Image.SCALE_DEFAULT)
+        );
+        saveIcon = new ImageIcon(
+                new ImageIcon(getResourcesPath()+"/images/Save.gif")
+                        .getImage()
+                        .getScaledInstance(64,64,Image.SCALE_DEFAULT)
+        );
+        aboutIcon = new ImageIcon(
+                new ImageIcon(getResourcesPath()+"/images/About.gif")
+                        .getImage()
+                        .getScaledInstance(64,64,Image.SCALE_DEFAULT)
+        );
+        savingProgressIcon = new ImageIcon(
+                new ImageIcon(getResourcesPath()+"/images/Loader.gif")
+                        .getImage()
+                        .getScaledInstance(64,64,Image.SCALE_DEFAULT)
+        );
     }
 
     private void createHomeScreenFrame(){
@@ -106,7 +142,7 @@ public class HomeScreen implements ActionListener, MouseListener {
         homeScreenFrame.setTitle("Dohatec Digital Signature Tool 2 Beta");
         homeScreenFrame.setIconImage(dohatecLogo.getImage());
         homeScreenFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        homeScreenFrame.setSize(1200,675);
+        homeScreenFrame.setSize(1200,900);
         homeScreenFrame.setLayout(new BorderLayout());
         homeScreenFrame.getContentPane().setBackground(getBackgroundColor());
     }
@@ -335,6 +371,26 @@ public class HomeScreen implements ActionListener, MouseListener {
         save.addMouseListener(this);
     }
 
+    private void createAboutButton(){
+        about = new JButton();
+        about.setBackground(null);
+        about.setForeground(getBackgroundColor());
+        about.setBorder(null);
+        about.setFocusable(false);
+        about.setText("About");
+        about.setIcon(aboutIcon);
+        about.setFont(getRegularFont());
+        about.addActionListener(
+                event -> {
+                    showGeneralMessage(
+                            String.format("Developed by DohatecCA Team\nIcons by Lordicon.com"),
+                            null
+                    );
+                }
+        );
+        about.addMouseListener(this);
+    }
+
     private void saveSignedFile() {
         try{
             showSavingWindow();
@@ -343,12 +399,13 @@ public class HomeScreen implements ActionListener, MouseListener {
             FileOutputStream fos = new FileOutputStream(signedFileSaveLocationPath);
 
             int readBytes;
+            byte[] buffer = new byte[1024];
             initialSizeOfSignedFileMB = (float)fis.available()/1000000;
-            while((readBytes=fis.read()) != -1){
+            while((readBytes=fis.read(buffer)) != -1){
                 float leftToWriteMB = (float)fis.available()/1000000;
                 writtenSizeOfSignedFileMB = initialSizeOfSignedFileMB -leftToWriteMB;
                 savingProgressLabel.setText(String.format("Saved %.3f MB of %.3f MB", writtenSizeOfSignedFileMB, initialSizeOfSignedFileMB));
-                fos.write(readBytes);
+                fos.write(buffer);
             }
 
             closeSavingWindow();
@@ -419,13 +476,17 @@ public class HomeScreen implements ActionListener, MouseListener {
             selectImage.setBackground(getBackgroundColor());
             selectImage.setForeground(getPrimaryColor());
         }
-        else if( e.getSource()==sign){
+        else if(e.getSource()==sign){
             sign.setBackground(getBackgroundColor());
             sign.setForeground(getPrimaryColor());
         }
         else if(e.getSource()==save){
             save.setBackground(getBackgroundColor());
             save.setForeground(getPrimaryColor());
+        }
+        else if(e.getSource()==about){
+            about.setBackground(getBackgroundColor());
+            about.setForeground(getPrimaryColor());
         }
     }
 
@@ -446,6 +507,10 @@ public class HomeScreen implements ActionListener, MouseListener {
         else if(e.getSource()==save){
             save.setBackground(null);
             save.setForeground(getBackgroundColor());
+        }
+        else if(e.getSource()==about){
+            about.setBackground(null);
+            about.setForeground(getBackgroundColor());
         }
     }
 }
