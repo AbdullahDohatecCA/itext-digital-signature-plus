@@ -122,6 +122,11 @@
             <version>20230227</version>
         </dependency>
         <dependency>
+            <groupId>io.ipinfo</groupId>
+            <artifactId>ipinfo-api</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>2.0.9</version>

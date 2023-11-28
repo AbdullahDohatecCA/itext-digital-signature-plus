@@ -13,6 +13,7 @@ import java.awt.event.MouseListener;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -45,6 +46,7 @@ public class HomeScreen implements ActionListener, MouseListener {
     private ImageIcon savingProgressIcon;
     private JFormattedTextField previewImageText;
     private String selectedDocumentFilePath;
+    private static ArrayList<String> selectedDocumentsFilePathsArray = new ArrayList<String>();
     private String signatureImageFilePath;
     private String signedFileSaveLocationPath;
     private Float initialSizeOfSignedFileMB;
@@ -231,20 +233,23 @@ public class HomeScreen implements ActionListener, MouseListener {
                 File selectedDocumentFile = documentFileChooser.getSelectedFile();
                 selectedDocumentFilePath = selectedDocumentFile.getAbsolutePath();
                 if(pdfFilter.accept(selectedDocumentFile)){
+                    selectedDocumentsFilePathsArray.add(selectedDocumentFilePath);
                     pdfViewer.openPdf(selectedDocumentFilePath);
                 }
                 else if(imageFilter.accept(selectedDocumentFile)){
-                    pdfConverter.convertImageToPdf(selectedDocumentFilePath);
-                    System.out.println("Converted");
-                    selectedDocumentFilePath = getProgramFilesPath()+"/tempI2PFile.pdf";
+                    String convertedI2pPath = pdfConverter.convertImageToPdf(selectedDocumentFilePath);
+                    if(convertedI2pPath != null){
+                        selectedDocumentsFilePathsArray.add(convertedI2pPath);
+                        selectedDocumentFilePath = convertedI2pPath;
+                    }
                     if(Files.exists(Path.of(selectedDocumentFilePath))){
-                        pdfViewer.openPdf(getProgramFilesPath()+"/tempI2PFile.pdf");
+                        pdfViewer.openPdf(selectedDocumentFilePath);
                     }
                 }
                 else{
                     showErrorMessage("Invalid file type.",homeScreenFrame);
                 }
-
+                System.out.println(selectedDocumentsFilePathsArray);
             }
         });
         open.addMouseListener(this);

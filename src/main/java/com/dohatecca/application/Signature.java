@@ -1,6 +1,6 @@
 package com.dohatecca.application;
 
-import com.dohatecca.util.Location;
+import com.dohatecca.util.GeoLocation;
 import com.itextpdf.forms.PdfAcroForm;
 import com.itextpdf.forms.fields.PdfFormField;
 import com.itextpdf.forms.fields.PdfSignatureFormField;
@@ -115,7 +115,7 @@ public class Signature {
         try{
             ImageData signatureImage = ImageDataFactory.create(signatureImagePath);
             pdfSignatureAppearance.setReason(reason)
-                    .setLocation(Location.getLocationFromIP())
+                    .setLocation(GeoLocation.getLocationFromIP())
                     .setRenderingMode(PdfSignatureAppearance.RenderingMode.GRAPHIC_AND_DESCRIPTION)
                     .setSignatureGraphic(signatureImage)
                     .setReuseAppearance(false)
