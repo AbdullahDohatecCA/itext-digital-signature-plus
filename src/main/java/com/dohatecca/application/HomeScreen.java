@@ -417,7 +417,6 @@ public class HomeScreen implements ActionListener, MouseListener {
             fis.close();
             fos.close();
             Files.deleteIfExists(Path.of(getProgramFilesPath() + "/temp.pdf"));
-            Files.deleteIfExists(Path.of(getProgramFilesPath() + "/tempI2PFile.pdf"));
         }
         catch (Exception e) {
             showErrorMessage(e.getMessage(),homeScreenFrame);

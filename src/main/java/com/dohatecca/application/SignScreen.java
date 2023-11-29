@@ -6,6 +6,9 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.Security;
 import java.security.cert.X509Certificate;
@@ -177,14 +180,19 @@ public class SignScreen extends SwingWorker<Void,Void> {
                         showWarningMessage("Please select a keystore first.", keySelectionWindow);
                     }
                     else {
-                        setAlias((String) keyListTable.getValueAt(selectedRow, 0));
-                        setReason(
-                                showQuestionMessage("What is the reason for this digital signature?",keySelectionWindow)
-                        );
-                        createSignProgressDialog();
-                        //performs signature with the sign() method inside doInBackground() method.
-                        this.execute();
-                        keySelectionWindow.dispose();
+                        try {
+                            Files.deleteIfExists(Path.of(getProgramFilesPath() + "/temp.pdf"));
+                            setAlias((String) keyListTable.getValueAt(selectedRow, 0));
+                            setReason(
+                                    showQuestionMessage("What is the reason for this digital signature?",keySelectionWindow)
+                            );
+                            createSignProgressDialog();
+                            //performs signature with the sign() method inside doInBackground() method.
+                            this.execute();
+                            keySelectionWindow.dispose();
+                        } catch (Exception x) {
+                            showErrorMessage(x.getMessage(),null);
+                        }
                     }
                 }
         );
@@ -257,6 +265,5 @@ public class SignScreen extends SwingWorker<Void,Void> {
     @Override
     protected void done() {
         signProgressDialog.dispose();
-        showGeneralMessage("Signature applied.",null);
     }
 }

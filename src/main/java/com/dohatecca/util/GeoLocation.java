@@ -7,6 +7,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import static com.dohatecca.util.Message.showErrorMessage;
 
@@ -36,5 +38,10 @@ public class GeoLocation {
             showErrorMessage(e.getMessage(), null);
             throw new RuntimeException(e);
         }
+    }
+
+    public static String getLocationFromTimeZone(){
+        String timeZone = String.valueOf(ZonedDateTime.now(ZoneId.systemDefault()).getZone());
+        return timeZone;
     }
 }
