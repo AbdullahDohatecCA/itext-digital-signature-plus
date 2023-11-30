@@ -141,7 +141,7 @@ public class HomeScreen implements ActionListener, MouseListener {
 
     private void createHomeScreenFrame(){
         homeScreenFrame = new JFrame();
-        homeScreenFrame.setTitle("Dohatec Digital Signature Tool 2 Beta");
+        homeScreenFrame.setTitle("Dohatec Digital Signature Tool 2");
         homeScreenFrame.setIconImage(dohatecLogo.getImage());
         homeScreenFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         homeScreenFrame.setSize(1200,900);

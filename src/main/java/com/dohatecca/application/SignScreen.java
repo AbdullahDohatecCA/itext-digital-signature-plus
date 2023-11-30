@@ -28,6 +28,7 @@ public class SignScreen extends SwingWorker<Void,Void> {
     private JLabel signProgressLabel;
     private JTable keyListTable;
     private JScrollPane keyListScrollPane;
+    private ImageIcon dohatecLogo;
     private JButton cancelButton;
     private JButton okButton;
     private ImageIcon signProgressIcon;
@@ -46,6 +47,7 @@ public class SignScreen extends SwingWorker<Void,Void> {
         try {
             initProvider();
             initKeyStore();
+            initIcons();
 
             createKeySelectionWindowHeader();
             createCertificateInfoTableFromAliases();
@@ -78,9 +80,18 @@ public class SignScreen extends SwingWorker<Void,Void> {
         }
     }
 
+    private void initIcons(){
+        dohatecLogo = new ImageIcon(
+                new ImageIcon(getResourcesPath()+"/images/Dohatec.png")
+                        .getImage()
+                        .getScaledInstance(512,512,Image.SCALE_DEFAULT)
+        );
+    }
+
     private void createKeySelectionWindow(){
         keySelectionWindow = new JFrame();
         keySelectionWindow.setTitle("Keys");
+        keySelectionWindow.setIconImage(dohatecLogo.getImage());
         keySelectionWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         keySelectionWindow.setLayout(new BorderLayout());
         keySelectionWindow.setSize(1000,337);
@@ -116,12 +127,12 @@ public class SignScreen extends SwingWorker<Void,Void> {
                 String issuer = certificate.getIssuerX500Principal().getName();
                 String issuerCN = issuer.substring(issuer.indexOf("CN=")+3);
                 issuerCN = issuerCN.substring(0,issuerCN.indexOf(","));
-                if(!issuerCN.contains("Dohatec")) continue;
+                //if(!issuerCN.contains("Dohatec")) continue;
                 certificateInfoTable[i][0] = currentAlias;
                 certificateInfoTable[i][1] = certificate.getNotBefore().toString();
                 certificateInfoTable[i][2] = certificate.getNotAfter().toString();
                 certificateInfoTable[i][3] = issuerCN;
-                i++;
+                ++i;
             }
         }
         catch (Exception e){
