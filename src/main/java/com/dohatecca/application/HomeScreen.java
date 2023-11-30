@@ -100,7 +100,7 @@ public class HomeScreen implements ActionListener, MouseListener {
         dohatecLogo = new ImageIcon(
                 new ImageIcon(getResourcesPath()+"/images/Dohatec.png")
                         .getImage()
-                        .getScaledInstance(512,512,Image.SCALE_DEFAULT)
+                        .getScaledInstance(512,512,Image.SCALE_SMOOTH)
         );
         defaultSignatureImage = new ImageIcon(
                 new ImageIcon(getResourcesPath()+"/images/DefaultSignature.png")
