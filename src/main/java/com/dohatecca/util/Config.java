@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import static com.dohatecca.util.Message.showErrorMessage;
 public class Config {
     public static String getResourcesPath(){
-        return "/resources";
+        return "resources";
     }
 
     public static String getProgramFilesPath(){
