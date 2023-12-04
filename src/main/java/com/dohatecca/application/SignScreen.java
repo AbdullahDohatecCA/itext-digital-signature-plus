@@ -6,7 +6,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyStore;
@@ -34,11 +33,9 @@ public class SignScreen extends SwingWorker<Void,Void> {
     private ImageIcon signProgressIcon;
     private String pdfFilePath;
     private String signatureImagePath;
-    private static PdfReader reader;
-    private static PdfSigner signer;
     private static KeyStore keyStore;
     private static Enumeration<String> aliases;
-    private static String[][] certificateInfoTable;
+    private static String[][] certificateInfoArray;
     private static String alias;
     private static String reason;
     private static int pageNumber;
@@ -119,19 +116,25 @@ public class SignScreen extends SwingWorker<Void,Void> {
     private void createCertificateInfoTableFromAliases(){
         try{
             aliases = keyStore.aliases();
-            certificateInfoTable = new String[50][4];
+            certificateInfoArray = new String[50][4];
             int i = 0;
             while(aliases.hasMoreElements()){
                 String currentAlias = aliases.nextElement();
                 X509Certificate certificate = (X509Certificate) keyStore.getCertificate(currentAlias);
                 String issuer = certificate.getIssuerX500Principal().getName();
-                String issuerCN = issuer.substring(issuer.indexOf("CN=")+3);
-                issuerCN = issuerCN.substring(0,issuerCN.indexOf(","));
+                int issuerCNIndex = issuer.indexOf("CN=");
+                String issuerCN;
+                if(issuerCNIndex != -1) {
+                    issuerCN = issuer.substring(issuerCNIndex+3,issuerCNIndex+18);
+                }
+                else {
+                    issuerCN = "Unknown";
+                }
                 //if(!issuerCN.contains("Dohatec")) continue;
-                certificateInfoTable[i][0] = currentAlias;
-                certificateInfoTable[i][1] = certificate.getNotBefore().toString();
-                certificateInfoTable[i][2] = certificate.getNotAfter().toString();
-                certificateInfoTable[i][3] = issuerCN;
+                certificateInfoArray[i][0] = currentAlias;
+                certificateInfoArray[i][1] = certificate.getNotBefore().toString();
+                certificateInfoArray[i][2] = certificate.getNotAfter().toString();
+                certificateInfoArray[i][3] = issuerCN;
                 ++i;
             }
         }
@@ -142,7 +145,7 @@ public class SignScreen extends SwingWorker<Void,Void> {
     }
 
     private void createKeyListTable(){
-        keyListTable = new JTable(certificateInfoTable, new String[]{"Common Name","Issue Date","Expiration Date","Issuer"});
+        keyListTable = new JTable(certificateInfoArray, new String[]{"Common Name","Issue Date","Expiration Date","Issuer"});
         keyListTable.setFont(getRegularFont());
         keyListTable.setSelectionBackground(getSecondaryColor());
         keyListTable.setSelectionForeground(getBackgroundColor());

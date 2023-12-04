@@ -2,6 +2,7 @@ package com.dohatecca;
 
 import com.dohatecca.application.HomeScreen;
 import com.dohatecca.application.PdfSelectionScreen;
+import com.dohatecca.util.Cleaner;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -19,8 +20,10 @@ public class Main {
         UIManager.setLookAndFeel(
                 UIManager.getSystemLookAndFeelClassName()
         );
-        Files.deleteIfExists(Path.of(getProgramFilesPath() + "/temp.pdf"));
-//        new HomeScreen();
-        new PdfSelectionScreen();
+        Cleaner cleaner = new Cleaner();
+        cleaner.cleanTempPdfFile();
+        cleaner.cleanApplicationDirectory(getProgramFilesPath()+"/ConvertedI2P");
+        cleaner.cleanApplicationDirectory(getProgramFilesPath()+"/MergedPdf");
+        new HomeScreen();
     }
 }

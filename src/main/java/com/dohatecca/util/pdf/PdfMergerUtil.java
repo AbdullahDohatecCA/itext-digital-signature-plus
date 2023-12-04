@@ -6,19 +6,20 @@ import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.utils.PdfMerger;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
 
 public class PdfMergerUtil {
     private static final String mergedPdfFolderPath = Config.getMergedPdfFolderPath();
-    public String mergePdf(String[] toBeMergedPdfPathsArray){
+    public String mergePdf(ArrayList<String> toBeMergedPdfPathsLsit){
         try{
             String mergedPdfFilePath = mergedPdfFolderPath+"/"+getMergedPdfFileName();
             PdfDocument mergedPdf = new PdfDocument(new PdfWriter(mergedPdfFilePath));
             PdfMerger pdfMerger = new PdfMerger(mergedPdf);
 
-            for(int i=0;i<toBeMergedPdfPathsArray.length;i++){
-                PdfDocument pdf = new PdfDocument(new PdfReader(toBeMergedPdfPathsArray[i]));
+            for(String path: toBeMergedPdfPathsLsit){
+                PdfDocument pdf = new PdfDocument(new PdfReader(path));
                 pdfMerger.merge(pdf,1,pdf.getNumberOfPages());
                 pdf.close();
             }

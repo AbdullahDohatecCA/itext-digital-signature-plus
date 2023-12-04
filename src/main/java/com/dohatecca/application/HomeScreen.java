@@ -46,20 +46,14 @@ public class HomeScreen implements ActionListener, MouseListener {
     private ImageIcon savingProgressIcon;
     private JFormattedTextField previewImageText;
     private String selectedDocumentFilePath;
-    private static ArrayList<String> selectedDocumentsFilePathsArray = new ArrayList<String>();
     private String signatureImageFilePath;
     private String signedFileSaveLocationPath;
-    private Float initialSizeOfSignedFileMB;
-    private Float writtenSizeOfSignedFileMB;
     private File lastSignatureImageLocationFile;
     private static PdfViewer pdfViewer;
-    private static PdfConverter pdfConverter;
     public HomeScreen() {
         initPdfViewer();
-        initPdfConverter();
-
-
         initIcons();
+
         createHomeScreenFrame();
         createMenuContainer();
         createMenubarPanel();
@@ -92,8 +86,8 @@ public class HomeScreen implements ActionListener, MouseListener {
         pdfViewer.openPdf("src/main/resources/docs/Welcome.pdf");
     }
 
-    private void initPdfConverter(){
-        pdfConverter = new PdfConverter();
+    public PdfViewer getPdfViewer(){
+        return pdfViewer;
     }
 
     private void initIcons(){
@@ -174,7 +168,7 @@ public class HomeScreen implements ActionListener, MouseListener {
             previewImageLabel.setPreferredSize(new Dimension(250,100));
 
             previewImageText = new JFormattedTextField();
-                previewImageText.setFont(getRegularFont());
+            previewImageText.setFont(getRegularFont());
             previewImageText.setMargin(new Insets(15,15,15,15));
             previewImageText.setBackground(null);
             previewImageText.setEditable(false);
@@ -216,41 +210,7 @@ public class HomeScreen implements ActionListener, MouseListener {
         open.setIcon(openIcon);
         open.setFont(getRegularFont());
         open.addActionListener(event -> {
-            JFileChooser documentFileChooser = new JFileChooser();
-            FileNameExtensionFilter pdfFilter = new FileNameExtensionFilter(
-                    "PDF files",
-                    "pdf"
-            );
-            FileNameExtensionFilter imageFilter = new FileNameExtensionFilter(
-                    "Image files",
-                    "jpg","png","gif","bmp"
-            );
-            documentFileChooser.addChoosableFileFilter(pdfFilter);
-            documentFileChooser.addChoosableFileFilter(imageFilter);
-            documentFileChooser.setFileFilter(pdfFilter);
-            int isSelected = documentFileChooser.showOpenDialog(homeScreenFrame);
-            if(isSelected == JFileChooser.APPROVE_OPTION) {
-                File selectedDocumentFile = documentFileChooser.getSelectedFile();
-                selectedDocumentFilePath = selectedDocumentFile.getAbsolutePath();
-                if(pdfFilter.accept(selectedDocumentFile)){
-                    selectedDocumentsFilePathsArray.add(selectedDocumentFilePath);
-                    pdfViewer.openPdf(selectedDocumentFilePath);
-                }
-                else if(imageFilter.accept(selectedDocumentFile)){
-                    String convertedI2pPath = pdfConverter.convertImageToPdf(selectedDocumentFilePath);
-                    if(convertedI2pPath != null){
-                        selectedDocumentsFilePathsArray.add(convertedI2pPath);
-                        selectedDocumentFilePath = convertedI2pPath;
-                    }
-                    if(Files.exists(Path.of(selectedDocumentFilePath))){
-                        pdfViewer.openPdf(selectedDocumentFilePath);
-                    }
-                }
-                else{
-                    showErrorMessage("Invalid file type.",homeScreenFrame);
-                }
-                System.out.println(selectedDocumentsFilePathsArray);
-            }
+            PdfSelectionScreen pdfSelectionScreen = new PdfSelectionScreen(this);
         });
         open.addMouseListener(this);
     }
@@ -403,12 +363,11 @@ public class HomeScreen implements ActionListener, MouseListener {
             FileInputStream fis = new FileInputStream(getProgramFilesPath()+"/temp.pdf");
             FileOutputStream fos = new FileOutputStream(signedFileSaveLocationPath);
 
-            int readBytes;
             byte[] buffer = new byte[1024];
-            initialSizeOfSignedFileMB = (float)fis.available()/1000000;
-            while((readBytes=fis.read(buffer)) != -1){
+            Float initialSizeOfSignedFileMB = (float) fis.available() / 1000000;
+            while(fis.read(buffer) != -1){
                 float leftToWriteMB = (float)fis.available()/1000000;
-                writtenSizeOfSignedFileMB = initialSizeOfSignedFileMB -leftToWriteMB;
+                Float writtenSizeOfSignedFileMB = initialSizeOfSignedFileMB - leftToWriteMB;
                 savingProgressLabel.setText(String.format("Saved %.3f MB of %.3f MB", writtenSizeOfSignedFileMB, initialSizeOfSignedFileMB));
                 fos.write(buffer);
             }
@@ -450,6 +409,14 @@ public class HomeScreen implements ActionListener, MouseListener {
 
     private void closeSavingWindow() {
         savingLoaderFrame.dispose();
+    }
+
+    public void setSelectedDocumentFilePath(String path){
+        this.selectedDocumentFilePath = path;
+    }
+
+    public String getSelectedDocumentFilePath(){
+        return this.selectedDocumentFilePath;
     }
 
     @Override

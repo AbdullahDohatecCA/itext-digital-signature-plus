@@ -7,11 +7,12 @@ import javax.swing.*;
 public class PdfViewer {
     private final SwingController controller = new SwingController();
     private final SwingViewBuilder factory = new SwingViewBuilder(controller);
-    private final JPanel viewerPanel = factory.buildViewerPanel();
+    private final JPanel pdfViewerPanel = factory.buildViewerPanel();
 
     public JPanel getPdfViewerPanel() {
         controller.setToolBarVisible(false);
-        return viewerPanel;
+        controller.setPageViewMode(1,true);
+        return pdfViewerPanel;
     }
 
     public void openPdf(String filePath) {
