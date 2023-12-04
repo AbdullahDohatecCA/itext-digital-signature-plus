@@ -6,6 +6,8 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.swing.*;
 import java.awt.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.Security;
 import java.security.cert.X509Certificate;
@@ -25,16 +27,15 @@ public class SignScreen extends SwingWorker<Void,Void> {
     private JLabel signProgressLabel;
     private JTable keyListTable;
     private JScrollPane keyListScrollPane;
+    private ImageIcon dohatecLogo;
     private JButton cancelButton;
     private JButton okButton;
     private ImageIcon signProgressIcon;
     private String pdfFilePath;
     private String signatureImagePath;
-    private static PdfReader reader;
-    private static PdfSigner signer;
     private static KeyStore keyStore;
     private static Enumeration<String> aliases;
-    private static String[][] certificateInfoTable;
+    private static String[][] certificateInfoArray;
     private static String alias;
     private static String reason;
     private static int pageNumber;
@@ -43,6 +44,7 @@ public class SignScreen extends SwingWorker<Void,Void> {
         try {
             initProvider();
             initKeyStore();
+            initIcons();
 
             createKeySelectionWindowHeader();
             createCertificateInfoTableFromAliases();
@@ -75,9 +77,18 @@ public class SignScreen extends SwingWorker<Void,Void> {
         }
     }
 
+    private void initIcons(){
+        dohatecLogo = new ImageIcon(
+                new ImageIcon(getResourcesPath()+"/images/Dohatec.png")
+                        .getImage()
+                        .getScaledInstance(512,512,Image.SCALE_DEFAULT)
+        );
+    }
+
     private void createKeySelectionWindow(){
         keySelectionWindow = new JFrame();
         keySelectionWindow.setTitle("Keys");
+        keySelectionWindow.setIconImage(dohatecLogo.getImage());
         keySelectionWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         keySelectionWindow.setLayout(new BorderLayout());
         keySelectionWindow.setSize(1000,337);
@@ -105,20 +116,26 @@ public class SignScreen extends SwingWorker<Void,Void> {
     private void createCertificateInfoTableFromAliases(){
         try{
             aliases = keyStore.aliases();
-            certificateInfoTable = new String[50][4];
+            certificateInfoArray = new String[50][4];
             int i = 0;
             while(aliases.hasMoreElements()){
                 String currentAlias = aliases.nextElement();
                 X509Certificate certificate = (X509Certificate) keyStore.getCertificate(currentAlias);
                 String issuer = certificate.getIssuerX500Principal().getName();
-                String issuerCN = issuer.substring(issuer.indexOf("CN=")+3);
-                issuerCN = issuerCN.substring(0,issuerCN.indexOf(","));
-                if(!issuerCN.contains("Dohatec")) continue;
-                certificateInfoTable[i][0] = currentAlias;
-                certificateInfoTable[i][1] = certificate.getNotBefore().toString();
-                certificateInfoTable[i][2] = certificate.getNotAfter().toString();
-                certificateInfoTable[i][3] = issuerCN;
-                i++;
+                int issuerCNIndex = issuer.indexOf("CN=");
+                String issuerCN;
+                if(issuerCNIndex != -1) {
+                    issuerCN = issuer.substring(issuerCNIndex+3,issuerCNIndex+18);
+                }
+                else {
+                    issuerCN = "Unknown";
+                }
+                //if(!issuerCN.contains("Dohatec")) continue;
+                certificateInfoArray[i][0] = currentAlias;
+                certificateInfoArray[i][1] = certificate.getNotBefore().toString();
+                certificateInfoArray[i][2] = certificate.getNotAfter().toString();
+                certificateInfoArray[i][3] = issuerCN;
+                ++i;
             }
         }
         catch (Exception e){
@@ -128,7 +145,7 @@ public class SignScreen extends SwingWorker<Void,Void> {
     }
 
     private void createKeyListTable(){
-        keyListTable = new JTable(certificateInfoTable, new String[]{"Common Name","Issue Date","Expiration Date","Issuer"});
+        keyListTable = new JTable(certificateInfoArray, new String[]{"Common Name","Issue Date","Expiration Date","Issuer"});
         keyListTable.setFont(getRegularFont());
         keyListTable.setSelectionBackground(getSecondaryColor());
         keyListTable.setSelectionForeground(getBackgroundColor());
@@ -177,14 +194,19 @@ public class SignScreen extends SwingWorker<Void,Void> {
                         showWarningMessage("Please select a keystore first.", keySelectionWindow);
                     }
                     else {
-                        setAlias((String) keyListTable.getValueAt(selectedRow, 0));
-                        setReason(
-                                showQuestionMessage("What is the reason for this digital signature?",keySelectionWindow)
-                        );
-                        createSignProgressDialog();
-                        //performs signature with the sign() method inside doInBackground() method.
-                        this.execute();
-                        keySelectionWindow.dispose();
+                        try {
+                            Files.deleteIfExists(Path.of(getProgramFilesPath() + "/temp.pdf"));
+                            setAlias((String) keyListTable.getValueAt(selectedRow, 0));
+                            setReason(
+                                    showQuestionMessage("What is the reason for this digital signature?",keySelectionWindow)
+                            );
+                            createSignProgressDialog();
+                            //performs signature with the sign() method inside doInBackground() method.
+                            this.execute();
+                            keySelectionWindow.dispose();
+                        } catch (Exception x) {
+                            showErrorMessage(x.getMessage(),null);
+                        }
                     }
                 }
         );
@@ -257,6 +279,5 @@ public class SignScreen extends SwingWorker<Void,Void> {
     @Override
     protected void done() {
         signProgressDialog.dispose();
-        showGeneralMessage("Signature applied.",null);
     }
 }

@@ -13,6 +13,7 @@ import java.awt.event.MouseListener;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -47,17 +48,12 @@ public class HomeScreen implements ActionListener, MouseListener {
     private String selectedDocumentFilePath;
     private String signatureImageFilePath;
     private String signedFileSaveLocationPath;
-    private Float initialSizeOfSignedFileMB;
-    private Float writtenSizeOfSignedFileMB;
     private File lastSignatureImageLocationFile;
     private static PdfViewer pdfViewer;
-    private static PdfConverter pdfConverter;
     public HomeScreen() {
         initPdfViewer();
-        initPdfConverter();
-
-
         initIcons();
+
         createHomeScreenFrame();
         createMenuContainer();
         createMenubarPanel();
@@ -90,15 +86,15 @@ public class HomeScreen implements ActionListener, MouseListener {
         pdfViewer.openPdf(getResourcesPath()+"/docs/Welcome.pdf");
     }
 
-    private void initPdfConverter(){
-        pdfConverter = new PdfConverter();
+    public PdfViewer getPdfViewer(){
+        return pdfViewer;
     }
 
     private void initIcons(){
         dohatecLogo = new ImageIcon(
                 new ImageIcon(getResourcesPath()+"/images/Dohatec.png")
                         .getImage()
-                        .getScaledInstance(512,512,Image.SCALE_DEFAULT)
+                        .getScaledInstance(512,512,Image.SCALE_SMOOTH)
         );
         defaultSignatureImage = new ImageIcon(
                 new ImageIcon(getResourcesPath()+"/images/DefaultSignature.png")
@@ -139,7 +135,7 @@ public class HomeScreen implements ActionListener, MouseListener {
 
     private void createHomeScreenFrame(){
         homeScreenFrame = new JFrame();
-        homeScreenFrame.setTitle("Dohatec Digital Signature Tool 2 Beta");
+        homeScreenFrame.setTitle("Dohatec Digital Signature Tool 2");
         homeScreenFrame.setIconImage(dohatecLogo.getImage());
         homeScreenFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         homeScreenFrame.setSize(1200,900);
@@ -172,7 +168,7 @@ public class HomeScreen implements ActionListener, MouseListener {
             previewImageLabel.setPreferredSize(new Dimension(250,100));
 
             previewImageText = new JFormattedTextField();
-                previewImageText.setFont(getRegularFont());
+            previewImageText.setFont(getRegularFont());
             previewImageText.setMargin(new Insets(15,15,15,15));
             previewImageText.setBackground(null);
             previewImageText.setEditable(false);
@@ -214,38 +210,7 @@ public class HomeScreen implements ActionListener, MouseListener {
         open.setIcon(openIcon);
         open.setFont(getRegularFont());
         open.addActionListener(event -> {
-            JFileChooser documentFileChooser = new JFileChooser();
-            FileNameExtensionFilter pdfFilter = new FileNameExtensionFilter(
-                    "PDF files",
-                    "pdf"
-            );
-            FileNameExtensionFilter imageFilter = new FileNameExtensionFilter(
-                    "Image files",
-                    "jpg","png","gif","bmp"
-            );
-            documentFileChooser.addChoosableFileFilter(pdfFilter);
-            documentFileChooser.addChoosableFileFilter(imageFilter);
-            documentFileChooser.setFileFilter(pdfFilter);
-            int isSelected = documentFileChooser.showOpenDialog(homeScreenFrame);
-            if(isSelected == JFileChooser.APPROVE_OPTION) {
-                File selectedDocumentFile = documentFileChooser.getSelectedFile();
-                selectedDocumentFilePath = selectedDocumentFile.getAbsolutePath();
-                if(pdfFilter.accept(selectedDocumentFile)){
-                    pdfViewer.openPdf(selectedDocumentFilePath);
-                }
-                else if(imageFilter.accept(selectedDocumentFile)){
-                    pdfConverter.convertImageToPdf(selectedDocumentFilePath);
-                    System.out.println("Converted");
-                    selectedDocumentFilePath = getProgramFilesPath()+"/tempI2PFile.pdf";
-                    if(Files.exists(Path.of(selectedDocumentFilePath))){
-                        pdfViewer.openPdf(getProgramFilesPath()+"/tempI2PFile.pdf");
-                    }
-                }
-                else{
-                    showErrorMessage("Invalid file type.",homeScreenFrame);
-                }
-
-            }
+            PdfSelectionScreen pdfSelectionScreen = new PdfSelectionScreen(this);
         });
         open.addMouseListener(this);
     }
@@ -398,12 +363,11 @@ public class HomeScreen implements ActionListener, MouseListener {
             FileInputStream fis = new FileInputStream(getProgramFilesPath()+"/temp.pdf");
             FileOutputStream fos = new FileOutputStream(signedFileSaveLocationPath);
 
-            int readBytes;
             byte[] buffer = new byte[1024];
-            initialSizeOfSignedFileMB = (float)fis.available()/1000000;
-            while((readBytes=fis.read(buffer)) != -1){
+            Float initialSizeOfSignedFileMB = (float) fis.available() / 1000000;
+            while(fis.read(buffer) != -1){
                 float leftToWriteMB = (float)fis.available()/1000000;
-                writtenSizeOfSignedFileMB = initialSizeOfSignedFileMB -leftToWriteMB;
+                Float writtenSizeOfSignedFileMB = initialSizeOfSignedFileMB - leftToWriteMB;
                 savingProgressLabel.setText(String.format("Saved %.3f MB of %.3f MB", writtenSizeOfSignedFileMB, initialSizeOfSignedFileMB));
                 fos.write(buffer);
             }
@@ -412,7 +376,6 @@ public class HomeScreen implements ActionListener, MouseListener {
             fis.close();
             fos.close();
             Files.deleteIfExists(Path.of(getProgramFilesPath() + "/temp.pdf"));
-            Files.deleteIfExists(Path.of(getProgramFilesPath() + "/tempI2PFile.pdf"));
         }
         catch (Exception e) {
             showErrorMessage(e.getMessage(),homeScreenFrame);
@@ -446,6 +409,14 @@ public class HomeScreen implements ActionListener, MouseListener {
 
     private void closeSavingWindow() {
         savingLoaderFrame.dispose();
+    }
+
+    public void setSelectedDocumentFilePath(String path){
+        this.selectedDocumentFilePath = path;
+    }
+
+    public String getSelectedDocumentFilePath(){
+        return this.selectedDocumentFilePath;
     }
 
     @Override

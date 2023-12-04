@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import static com.dohatecca.util.Message.showErrorMessage;
 public class Config {
     public static String getResourcesPath(){
-        return "src/main/resources";
+        return "/resources";
     }
 
     public static String getProgramFilesPath(){
@@ -18,6 +18,22 @@ public class Config {
             System.out.println("Program Directory Created: "+programDir.mkdirs());
         }
         return systemDrive+"/DohatecCA/DST2";
+    }
+
+    public static String getConvertedI2PFolderPath(){
+        if(!Files.exists(Path.of(getProgramFilesPath()+"/ConvertedI2P"))){
+            File convertedI2PDir = new File(getProgramFilesPath()+"/ConvertedI2P");
+            convertedI2PDir.mkdirs();
+        }
+        return getProgramFilesPath()+"/ConvertedI2P";
+    }
+
+    public static String getMergedPdfFolderPath(){
+        if(!Files.exists(Path.of(getProgramFilesPath()+"/MergedPdf"))){
+            File mergedPdfDir = new File(getProgramFilesPath()+"/MergedPdf");
+            mergedPdfDir.mkdirs();
+        }
+        return getProgramFilesPath()+"/MergedPdf";
     }
 
     public static Font getRegularFont(){

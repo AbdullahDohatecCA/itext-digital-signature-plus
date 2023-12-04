@@ -1,6 +1,6 @@
 package com.dohatecca.application;
 
-import com.dohatecca.util.Location;
+import com.dohatecca.util.GeoLocation;
 import com.itextpdf.forms.PdfAcroForm;
 import com.itextpdf.forms.fields.PdfFormField;
 import com.itextpdf.forms.fields.PdfSignatureFormField;
@@ -26,6 +26,7 @@ import java.util.Map;
 import static com.dohatecca.util.Config.getProgramFilesPath;
 import static com.dohatecca.util.Config.getResourcesPath;
 import static com.dohatecca.util.Message.showErrorMessage;
+import static com.dohatecca.util.Message.showGeneralMessage;
 
 public class Signature {
     public void sign(
@@ -83,8 +84,8 @@ public class Signature {
                     0,
                     PdfSigner.CryptoStandard.CMS
             );
-
             fos.close();
+            showGeneralMessage("Signature applied.",null);
         }
         catch (Exception ex) {
             showErrorMessage(ex.getMessage(), null);
@@ -115,7 +116,7 @@ public class Signature {
         try{
             ImageData signatureImage = ImageDataFactory.create(signatureImagePath);
             pdfSignatureAppearance.setReason(reason)
-                    .setLocation(Location.getLocationFromIP())
+                    .setLocation(GeoLocation.getLocationFromTimeZone())
                     .setRenderingMode(PdfSignatureAppearance.RenderingMode.GRAPHIC_AND_DESCRIPTION)
                     .setSignatureGraphic(signatureImage)
                     .setReuseAppearance(false)
