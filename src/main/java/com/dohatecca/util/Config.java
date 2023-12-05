@@ -1,5 +1,6 @@
 package com.dohatecca.util;
 
+import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.nio.file.Files;
@@ -11,7 +12,7 @@ public class Config {
         return "resources";
     }
 
-    public static String getProgramFilesPath(){
+    public static String getApplicationFilesPath(){
         String systemDrive = System.getenv("SystemDrive");
         if(!Files.isDirectory(Path.of(systemDrive+"/DohatecCA/DST2"))){
             File programDir = new File(systemDrive+"/DohatecCA/DST2");
@@ -21,19 +22,19 @@ public class Config {
     }
 
     public static String getConvertedI2PFolderPath(){
-        if(!Files.exists(Path.of(getProgramFilesPath()+"/ConvertedI2P"))){
-            File convertedI2PDir = new File(getProgramFilesPath()+"/ConvertedI2P");
+        if(!Files.exists(Path.of(getApplicationFilesPath()+"/ConvertedI2P"))){
+            File convertedI2PDir = new File(getApplicationFilesPath()+"/ConvertedI2P");
             convertedI2PDir.mkdirs();
         }
-        return getProgramFilesPath()+"/ConvertedI2P";
+        return getApplicationFilesPath()+"/ConvertedI2P";
     }
 
     public static String getMergedPdfFolderPath(){
-        if(!Files.exists(Path.of(getProgramFilesPath()+"/MergedPdf"))){
-            File mergedPdfDir = new File(getProgramFilesPath()+"/MergedPdf");
+        if(!Files.exists(Path.of(getApplicationFilesPath()+"/MergedPdf"))){
+            File mergedPdfDir = new File(getApplicationFilesPath()+"/MergedPdf");
             mergedPdfDir.mkdirs();
         }
-        return getProgramFilesPath()+"/MergedPdf";
+        return getApplicationFilesPath()+"/MergedPdf";
     }
 
     public static Font getRegularFont(){
@@ -98,10 +99,70 @@ public class Config {
     }
 
     public static Color getWarningColor(){
-        return new Color(0xD9BE12);
+        return new Color(0xFF8000);
     }
 
     public static Color getDangerColor(){
         return new Color(0xD91919);
+    }
+
+    public static ImageIcon getDohatecLogo(){
+        Image iconImage = new ImageIcon(getResourcesPath()+"/images/Dohatec.png")
+                .getImage()
+                .getScaledInstance(512,512,Image.SCALE_DEFAULT);
+        return new ImageIcon(iconImage);
+    }
+
+    public static ImageIcon getOpenIcon(){
+        Image iconImage = new ImageIcon(getResourcesPath()+"/images/Open.gif")
+                .getImage()
+                .getScaledInstance(64,64,Image.SCALE_DEFAULT);
+        return new ImageIcon(iconImage);
+    }
+
+    public static ImageIcon getImageIcon(){
+        Image iconImage = new ImageIcon(getResourcesPath()+"/images/Image.gif")
+                .getImage()
+                .getScaledInstance(64,64,Image.SCALE_DEFAULT);
+        return new ImageIcon(iconImage);
+    }
+
+    public static ImageIcon getSignIcon(){
+        Image iconImage = new ImageIcon(getResourcesPath()+"/images/Sign.gif")
+                .getImage()
+                .getScaledInstance(64,64,Image.SCALE_DEFAULT);
+        return new ImageIcon(iconImage);
+    }
+
+    public static ImageIcon getSaveIcon(){
+        Image iconImage = new ImageIcon(getResourcesPath()+"/images/Save.gif")
+                .getImage()
+                .getScaledInstance(64,64,Image.SCALE_DEFAULT);
+        return new ImageIcon(iconImage);
+    }
+
+    public static ImageIcon getAboutIcon(){
+        Image iconImage = new ImageIcon(getResourcesPath()+"/images/About.gif")
+                .getImage()
+                .getScaledInstance(64,64,Image.SCALE_DEFAULT);
+        return new ImageIcon(iconImage);
+    }
+
+    public static ImageIcon getDefaultSignatureImage(){
+        Image iconImage = new ImageIcon(getResourcesPath()+"/images/DefaultSignature.png")
+                .getImage()
+                .getScaledInstance(200,100,Image.SCALE_DEFAULT);
+        return new ImageIcon(iconImage);
+    }
+
+    public static ImageIcon getLoadingIcon(){
+        Image iconImage = new ImageIcon(getResourcesPath()+"/images/Loading.gif")
+                .getImage()
+                .getScaledInstance(64,64,Image.SCALE_DEFAULT);
+        return new ImageIcon(iconImage);
+    }
+
+    public static String getWelcomePdfPath(){
+        return getResourcesPath()+"/docs/Welcome.pdf";
     }
 }

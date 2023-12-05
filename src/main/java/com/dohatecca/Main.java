@@ -1,15 +1,12 @@
 package com.dohatecca;
 
 import com.dohatecca.application.HomeScreen;
-import com.dohatecca.application.PdfSelectionScreen;
 import com.dohatecca.util.Cleaner;
 
 import javax.swing.*;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
-import static com.dohatecca.util.Config.getProgramFilesPath;
+import static com.dohatecca.util.Config.getApplicationFilesPath;
 
 public class Main {
     public static void main(String[] args) throws
@@ -22,8 +19,8 @@ public class Main {
         );
         Cleaner cleaner = new Cleaner();
         cleaner.cleanTempPdfFile();
-        cleaner.cleanApplicationDirectory(getProgramFilesPath()+"/ConvertedI2P");
-        cleaner.cleanApplicationDirectory(getProgramFilesPath()+"/MergedPdf");
+        cleaner.cleanApplicationDirectory(getApplicationFilesPath()+"/ConvertedI2P");
+        cleaner.cleanApplicationDirectory(getApplicationFilesPath()+"/MergedPdf");
         new HomeScreen();
     }
 }

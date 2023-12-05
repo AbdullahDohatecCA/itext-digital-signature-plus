@@ -1,7 +1,5 @@
 package com.dohatecca.application;
 
-import com.itextpdf.kernel.pdf.*;
-import com.itextpdf.signatures.*;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.swing.*;
@@ -12,11 +10,13 @@ import java.security.KeyStore;
 import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import static com.dohatecca.util.Config.*;
 import static com.dohatecca.util.Message.*;
 
-public class SignScreen extends SwingWorker<Void,Void> {
+public class SignScreen {
     private JFrame keySelectionWindow;
     private JPanel headerPanel;
     private JLabel headerLabel;
@@ -27,9 +27,9 @@ public class SignScreen extends SwingWorker<Void,Void> {
     private JLabel signProgressLabel;
     private JTable keyListTable;
     private JScrollPane keyListScrollPane;
-    private ImageIcon dohatecLogo;
     private JButton cancelButton;
     private JButton okButton;
+    private ImageIcon dohatecLogo;
     private ImageIcon signProgressIcon;
     private String pdfFilePath;
     private String signatureImagePath;
@@ -78,11 +78,8 @@ public class SignScreen extends SwingWorker<Void,Void> {
     }
 
     private void initIcons(){
-        dohatecLogo = new ImageIcon(
-                new ImageIcon(getResourcesPath()+"/images/Dohatec.png")
-                        .getImage()
-                        .getScaledInstance(512,512,Image.SCALE_DEFAULT)
-        );
+        dohatecLogo = getDohatecLogo();
+        signProgressIcon = getLoadingIcon();
     }
 
     private void createKeySelectionWindow(){
@@ -130,7 +127,6 @@ public class SignScreen extends SwingWorker<Void,Void> {
                 else {
                     issuerCN = "Unknown";
                 }
-                //if(!issuerCN.contains("Dohatec")) continue;
                 certificateInfoArray[i][0] = currentAlias;
                 certificateInfoArray[i][1] = certificate.getNotBefore().toString();
                 certificateInfoArray[i][2] = certificate.getNotAfter().toString();
@@ -155,7 +151,7 @@ public class SignScreen extends SwingWorker<Void,Void> {
 
     private void createKeyListPanel(){
         keyListPanel = new JPanel();
-        keyListPanel.setBackground(new Color(0xB3B3B3));
+        keyListPanel.setBackground(getBackgroundColor());
         keyListPanel.setLayout(new BorderLayout());
         keyListPanel.add(keyListScrollPane,BorderLayout.CENTER);
     }
@@ -195,14 +191,13 @@ public class SignScreen extends SwingWorker<Void,Void> {
                     }
                     else {
                         try {
-                            Files.deleteIfExists(Path.of(getProgramFilesPath() + "/temp.pdf"));
+                            Files.deleteIfExists(Path.of(getApplicationFilesPath() + "/temp.pdf"));
                             setAlias((String) keyListTable.getValueAt(selectedRow, 0));
                             setReason(
                                     showQuestionMessage("What is the reason for this digital signature?",keySelectionWindow)
                             );
-                            createSignProgressDialog();
-                            //performs signature with the sign() method inside doInBackground() method.
-                            this.execute();
+                            Executor signOperationExecutor = Executors.newSingleThreadExecutor();
+                            signOperationExecutor.execute(this::doSignature);
                             keySelectionWindow.dispose();
                         } catch (Exception x) {
                             showErrorMessage(x.getMessage(),null);
@@ -235,7 +230,7 @@ public class SignScreen extends SwingWorker<Void,Void> {
     private void createSignProgressDialog(){
         signProgressDialog = new JDialog();
         signProgressDialog.setTitle("Signing");
-        signProgressDialog.setIconImage(new ImageIcon(getResourcesPath()+"/images/Dohatec.png").getImage());
+        signProgressDialog.setIconImage(dohatecLogo.getImage());
         signProgressDialog.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         signProgressDialog.setSize(300,125);
         signProgressDialog.getContentPane().setBackground(getBackgroundColor());
@@ -245,14 +240,7 @@ public class SignScreen extends SwingWorker<Void,Void> {
         signProgressPanel.setBackground(getBackgroundColor());
 
         signProgressLabel = new JLabel();
-        signProgressIcon = new ImageIcon(getResourcesPath()+"/images/Loader.gif");
-        signProgressLabel.setIcon(
-                new ImageIcon(
-                        signProgressIcon
-                                .getImage()
-                                .getScaledInstance(64,64,Image.SCALE_DEFAULT)
-                )
-        );
+        signProgressLabel.setIcon(signProgressIcon);
         signProgressLabel.setText("Signing document. Please wait...");
         signProgressLabel.setIconTextGap(5);
 
@@ -262,8 +250,12 @@ public class SignScreen extends SwingWorker<Void,Void> {
         signProgressDialog.setVisible(true);
     }
 
-    @Override
-    protected Void doInBackground() {
+    private void closeSignProgressDialog(){
+        signProgressDialog.dispose();
+    }
+
+    private void doSignature(){
+        createSignProgressDialog();
         Signature signature = new Signature();
         signature.sign(
                 pdfFilePath,
@@ -273,11 +265,6 @@ public class SignScreen extends SwingWorker<Void,Void> {
                 reason,
                 pageNumber
         );
-        return null;
-    }
-
-    @Override
-    protected void done() {
-        signProgressDialog.dispose();
+        closeSignProgressDialog();
     }
 }

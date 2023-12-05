@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.dohatecca.util.Config.getProgramFilesPath;
+import static com.dohatecca.util.Config.getApplicationFilesPath;
 import static com.dohatecca.util.Config.getResourcesPath;
 import static com.dohatecca.util.Message.showErrorMessage;
 import static com.dohatecca.util.Message.showGeneralMessage;
@@ -47,7 +47,7 @@ public class Signature {
             ITSAClient tsaClient = getTimestampAuthorityClient(certificateChain);
             List<ICrlClient> crlClientList = getOfflineCRLClients(certificateChain);
 
-            FileOutputStream fos = new FileOutputStream(getProgramFilesPath()+"/temp.pdf");
+            FileOutputStream fos = new FileOutputStream(getApplicationFilesPath()+"/temp.pdf");
             PdfReader reader = new PdfReader(pdfFilePath);
             PdfSigner signer = new PdfSigner(
                     reader,
@@ -89,7 +89,6 @@ public class Signature {
         }
         catch (Exception ex) {
             showErrorMessage(ex.getMessage(), null);
-            throw new RuntimeException(ex);
         }
     }
 
