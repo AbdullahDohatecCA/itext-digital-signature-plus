@@ -13,7 +13,7 @@ public class Config {
         return "src/main/resources";
     }
 
-    public static String getProgramFilesPath(){
+    public static String getApplicationFilesPath(){
         String systemDrive = System.getenv("SystemDrive");
         if(!Files.isDirectory(Path.of(systemDrive+"/DohatecCA/DST2"))){
             File programDir = new File(systemDrive+"/DohatecCA/DST2");
@@ -23,19 +23,19 @@ public class Config {
     }
 
     public static String getConvertedI2PFolderPath(){
-        if(!Files.exists(Path.of(getProgramFilesPath()+"/ConvertedI2P"))){
-            File convertedI2PDir = new File(getProgramFilesPath()+"/ConvertedI2P");
+        if(!Files.exists(Path.of(getApplicationFilesPath()+"/ConvertedI2P"))){
+            File convertedI2PDir = new File(getApplicationFilesPath()+"/ConvertedI2P");
             convertedI2PDir.mkdirs();
         }
-        return getProgramFilesPath()+"/ConvertedI2P";
+        return getApplicationFilesPath()+"/ConvertedI2P";
     }
 
     public static String getMergedPdfFolderPath(){
-        if(!Files.exists(Path.of(getProgramFilesPath()+"/MergedPdf"))){
-            File mergedPdfDir = new File(getProgramFilesPath()+"/MergedPdf");
+        if(!Files.exists(Path.of(getApplicationFilesPath()+"/MergedPdf"))){
+            File mergedPdfDir = new File(getApplicationFilesPath()+"/MergedPdf");
             mergedPdfDir.mkdirs();
         }
-        return getProgramFilesPath()+"/MergedPdf";
+        return getApplicationFilesPath()+"/MergedPdf";
     }
 
     public static Font getRegularFont(){
@@ -100,7 +100,7 @@ public class Config {
     }
 
     public static Color getWarningColor(){
-        return new Color(0xD9BE12);
+        return new Color(0xFF8000);
     }
 
     public static Color getDangerColor(){
@@ -152,7 +152,7 @@ public class Config {
     public static ImageIcon getDefaultSignatureImage(){
         Image iconImage = new ImageIcon(getResourcesPath()+"/images/DefaultSignature.png")
                 .getImage()
-                .getScaledInstance(64,64,Image.SCALE_DEFAULT);
+                .getScaledInstance(200,100,Image.SCALE_DEFAULT);
         return new ImageIcon(iconImage);
     }
 

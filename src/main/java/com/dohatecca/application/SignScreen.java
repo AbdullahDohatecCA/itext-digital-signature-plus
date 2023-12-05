@@ -191,7 +191,7 @@ public class SignScreen {
                     }
                     else {
                         try {
-                            Files.deleteIfExists(Path.of(getProgramFilesPath() + "/temp.pdf"));
+                            Files.deleteIfExists(Path.of(getApplicationFilesPath() + "/temp.pdf"));
                             setAlias((String) keyListTable.getValueAt(selectedRow, 0));
                             setReason(
                                     showQuestionMessage("What is the reason for this digital signature?",keySelectionWindow)

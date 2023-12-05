@@ -1,7 +1,5 @@
 package com.dohatecca.util;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -29,7 +27,7 @@ public class Cleaner {
     }
 
     public void cleanTempPdfFile(){
-        Path tempPdfPath = Path.of(Config.getProgramFilesPath()+"/temp.pdf");
+        Path tempPdfPath = Path.of(Config.getApplicationFilesPath()+"/temp.pdf");
         try {
             Files.deleteIfExists(tempPdfPath);
         } catch (Exception e) {
