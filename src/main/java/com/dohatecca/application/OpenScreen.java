@@ -15,10 +15,10 @@ import java.util.concurrent.Executors;
 import static com.dohatecca.util.Config.*;
 import static com.dohatecca.util.Message.showErrorMessage;
 
-public class PdfSelectionScreen {
+public class OpenScreen {
     private final HomeScreen homeScreen;
     private ImageIcon dohatecLogo;
-    private ImageIcon loaderIcon;
+    private ImageIcon loadingIcon;
     private JFrame pdfSelectionWindow;
     private JPanel pdfSelectionHeaderPanel;
     private JPanel pdfSelectionContentPanel;
@@ -37,7 +37,7 @@ public class PdfSelectionScreen {
     private static final ArrayList<String> selectedDocumentsFilePathsList = new ArrayList<>();
     private static final String[][] selectedDocumentsFilePathsArray = new String[100][1];
 
-    public PdfSelectionScreen(HomeScreen homeScreenRef){
+    public OpenScreen(HomeScreen homeScreenRef){
         this.homeScreen = homeScreenRef;
 
         initIcons();
@@ -54,26 +54,18 @@ public class PdfSelectionScreen {
     }
 
     private void initIcons(){
-        dohatecLogo = new ImageIcon(
-                new ImageIcon(getResourcesPath()+"/images/Dohatec.png")
-                        .getImage()
-                        .getScaledInstance(512,512, Image.SCALE_DEFAULT)
-        );
+        dohatecLogo = getDohatecLogo();
 
-        loaderIcon = new ImageIcon(
-                new ImageIcon(getResourcesPath()+"/images/Loader.gif")
-                        .getImage()
-                        .getScaledInstance(64,64, Image.SCALE_DEFAULT)
-        );
+        loadingIcon = getLoadingIcon();
     }
 
     private void createPdfSelectionWindow(){
         pdfSelectionWindow = new JFrame();
-        pdfSelectionWindow.setTitle("Select PDF");
+        pdfSelectionWindow.setTitle("Open");
         pdfSelectionWindow.setIconImage(dohatecLogo.getImage());
         pdfSelectionWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         pdfSelectionWindow.setLayout(new BorderLayout());
-        pdfSelectionWindow.setSize(1000,600);
+        pdfSelectionWindow.setSize(800,600);
         pdfSelectionWindow.add(pdfSelectionHeaderPanel, BorderLayout.NORTH);
         pdfSelectionWindow.add(pdfSelectionContentPanel,BorderLayout.CENTER);
         pdfSelectionWindow.add(pdfSelectionFooterPanel,BorderLayout.SOUTH);
@@ -83,7 +75,6 @@ public class PdfSelectionScreen {
 
     private void createPdfSelectionHeader(){
         pdfSelectionHeaderPanel = new JPanel();
-        pdfSelectionHeaderPanel.setSize(1000,100);
         pdfSelectionHeaderPanel.setBackground(getSecondaryColor());
         pdfSelectionHeaderPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         pdfSelectionHeaderText = new JLabel("Select PDF/Image File(s)");
@@ -137,12 +128,11 @@ public class PdfSelectionScreen {
     private void createPdfSelectionFooter(){
         pdfSelectionFooterPanel = new JPanel();
         pdfSelectionFooterPanel.setBackground(getSecondaryColor());
-        pdfSelectionFooterPanel.setSize(1000,100);
     }
 
     private void createAddButton(){
         addButton = new JButton();
-        addButton.setMaximumSize(new Dimension(250,35));
+        addButton.setMaximumSize(new Dimension(100,35));
         addButton.setText("Add");
         addButton.setForeground(getSuccessColor());
         addButton.setFocusable(false);
@@ -162,25 +152,25 @@ public class PdfSelectionScreen {
                     documentFileChooser.addChoosableFileFilter(pdfFilter);
                     documentFileChooser.addChoosableFileFilter(imageFilter);
                     documentFileChooser.setFileFilter(pdfFilter);
+                    documentFileChooser.setMultiSelectionEnabled(true);
                     int isSelected = documentFileChooser.showOpenDialog(pdfSelectionWindow);
                     if(isSelected == JFileChooser.APPROVE_OPTION) {
-                        File selectedDocumentFile = documentFileChooser.getSelectedFile();
-                        String selectedDocumentFilePath = selectedDocumentFile.getAbsolutePath();
-                        if(pdfFilter.accept(selectedDocumentFile)){
-                            selectedDocumentsFilePathsList.add(selectedDocumentFilePath);
-                        }
-                        else if(imageFilter.accept(selectedDocumentFile)){
-                            String convertedI2pPath = pdfConverter.convertImageToPdf(selectedDocumentFilePath);
-                            if(convertedI2pPath != null){
-                                selectedDocumentsFilePathsList.add(convertedI2pPath);
+                        File[] selectedDocumentFiles = documentFileChooser.getSelectedFiles();
+                        for (File selectedDocumentFile : selectedDocumentFiles) {
+                            String selectedDocumentFilePath = selectedDocumentFile.getAbsolutePath();
+                            if (pdfFilter.accept(selectedDocumentFile)) {
+                                selectedDocumentsFilePathsList.add(selectedDocumentFilePath);
+                            } else if (imageFilter.accept(selectedDocumentFile)) {
+                                String convertedI2pPath = pdfConverter.convertImageToPdf(selectedDocumentFilePath);
+                                if (convertedI2pPath != null) {
+                                    selectedDocumentsFilePathsList.add(convertedI2pPath);
+                                }
+                            } else {
+                                showErrorMessage("Invalid file type.", pdfSelectionWindow);
                             }
-                        }
-                        else{
-                            showErrorMessage("Invalid file type.",pdfSelectionWindow);
                         }
                         convertListToArray(selectedDocumentsFilePathsList);
                         pdfSelectionWindow.repaint();
-                        System.out.println(Arrays.deepToString(selectedDocumentsFilePathsArray));
                     }
                 }
         );
@@ -188,7 +178,7 @@ public class PdfSelectionScreen {
 
     private void createRemoveButton(){
         removeButton = new JButton();
-        removeButton.setMaximumSize(new Dimension(250,35));
+        removeButton.setMaximumSize(new Dimension(100,35));
         removeButton.setText("Remove");
         removeButton.setForeground(getDangerColor());
         removeButton.setFocusable(false);
@@ -207,7 +197,7 @@ public class PdfSelectionScreen {
 
     private void createMergeButton(){
         mergeButton = new JButton();
-        mergeButton.setMaximumSize(new Dimension(250,35));
+        mergeButton.setMaximumSize(new Dimension(100,35));
         mergeButton.setText("Merge");
         mergeButton.setForeground(getPrimaryColor());
         mergeButton.setFocusable(false);
@@ -215,6 +205,7 @@ public class PdfSelectionScreen {
         mergeButton.addActionListener(
                 e -> {
                     try{
+                        if(selectedDocumentsFilePathsList.isEmpty()) return;
                         Executor mergeOperationExecutor = Executors.newSingleThreadExecutor();
                         mergeOperationExecutor.execute(this::mergeAllSelectedDocuments);
                         pdfSelectionWindow.dispose();
@@ -248,7 +239,7 @@ public class PdfSelectionScreen {
         mergeProgressPanel.setBackground(getBackgroundColor());
 
         mergeProgressLabel = new JLabel();
-        mergeProgressLabel.setIcon(loaderIcon);
+        mergeProgressLabel.setIcon(loadingIcon);
         mergeProgressLabel.setText("Merging documents. Please wait...");
         mergeProgressLabel.setIconTextGap(5);
 

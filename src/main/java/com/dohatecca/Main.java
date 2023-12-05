@@ -1,13 +1,10 @@
 package com.dohatecca;
 
 import com.dohatecca.application.HomeScreen;
-import com.dohatecca.application.PdfSelectionScreen;
 import com.dohatecca.util.Cleaner;
 
 import javax.swing.*;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import static com.dohatecca.util.Config.getProgramFilesPath;
 

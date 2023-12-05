@@ -89,7 +89,6 @@ public class Signature {
         }
         catch (Exception ex) {
             showErrorMessage(ex.getMessage(), null);
-            throw new RuntimeException(ex);
         }
     }
 

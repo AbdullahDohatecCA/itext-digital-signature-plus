@@ -1,6 +1,5 @@
 package com.dohatecca.application;
 
-import com.dohatecca.util.pdf.PdfConverter;
 import com.dohatecca.util.pdf.PdfViewer;
 
 import javax.swing.*;
@@ -13,7 +12,6 @@ import java.awt.event.MouseListener;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -83,7 +81,7 @@ public class HomeScreen implements ActionListener, MouseListener {
     private void initPdfViewer(){
         pdfViewer = new PdfViewer();
         pdfContentPanel = pdfViewer.getPdfViewerPanel();
-        pdfViewer.openPdf("src/main/resources/docs/Welcome.pdf");
+        pdfViewer.openPdf(getWelcomePdfPath());
     }
 
     public PdfViewer getPdfViewer(){
@@ -91,46 +89,14 @@ public class HomeScreen implements ActionListener, MouseListener {
     }
 
     private void initIcons(){
-        dohatecLogo = new ImageIcon(
-                new ImageIcon(getResourcesPath()+"/images/Dohatec.png")
-                        .getImage()
-                        .getScaledInstance(512,512,Image.SCALE_SMOOTH)
-        );
-        defaultSignatureImage = new ImageIcon(
-                new ImageIcon(getResourcesPath()+"/images/DefaultSignature.png")
-                        .getImage()
-                        .getScaledInstance(256,128,Image.SCALE_DEFAULT)
-        );
-        openIcon = new ImageIcon(
-                new ImageIcon(getResourcesPath()+"/images/Open.gif")
-                        .getImage()
-                        .getScaledInstance(64,64,Image.SCALE_DEFAULT)
-        );
-        imageIcon = new ImageIcon(
-                new ImageIcon(getResourcesPath()+"/images/Image.gif")
-                        .getImage()
-                        .getScaledInstance(64,64,Image.SCALE_DEFAULT)
-        );
-        signIcon = new ImageIcon(
-                new ImageIcon(getResourcesPath()+"/images/Sign.gif")
-                        .getImage()
-                        .getScaledInstance(64,64,Image.SCALE_DEFAULT)
-        );
-        saveIcon = new ImageIcon(
-                new ImageIcon(getResourcesPath()+"/images/Save.gif")
-                        .getImage()
-                        .getScaledInstance(64,64,Image.SCALE_DEFAULT)
-        );
-        aboutIcon = new ImageIcon(
-                new ImageIcon(getResourcesPath()+"/images/About.gif")
-                        .getImage()
-                        .getScaledInstance(64,64,Image.SCALE_DEFAULT)
-        );
-        savingProgressIcon = new ImageIcon(
-                new ImageIcon(getResourcesPath()+"/images/Loader.gif")
-                        .getImage()
-                        .getScaledInstance(64,64,Image.SCALE_DEFAULT)
-        );
+        dohatecLogo = getDohatecLogo();
+        defaultSignatureImage = getDefaultSignatureImage();
+        openIcon = getOpenIcon();
+        imageIcon = getImageIcon();
+        signIcon = getSignIcon();
+        saveIcon = getSaveIcon();
+        aboutIcon = getAboutIcon();
+        savingProgressIcon = getLoadingIcon();
     }
 
     private void createHomeScreenFrame(){
@@ -210,7 +176,7 @@ public class HomeScreen implements ActionListener, MouseListener {
         open.setIcon(openIcon);
         open.setFont(getRegularFont());
         open.addActionListener(event -> {
-            PdfSelectionScreen pdfSelectionScreen = new PdfSelectionScreen(this);
+            OpenScreen openScreen = new OpenScreen(this);
         });
         open.addMouseListener(this);
     }
@@ -325,7 +291,7 @@ public class HomeScreen implements ActionListener, MouseListener {
                         executor.execute(this::saveSignedFile);
                         selectedDocumentFilePath = null;
                         pdfViewer.closePdf();
-                        pdfViewer.openPdf(getResourcesPath()+"/docs/Welcome.pdf");
+                        pdfViewer.openPdf(getWelcomePdfPath());
                     } catch (Exception e) {
                         showErrorMessage(e.getMessage(),homeScreenFrame);
                         throw new RuntimeException(e);
