@@ -39,8 +39,6 @@ public class Signature {
         FileOutputStream fos = new FileOutputStream(getApplicationFilesPath()+"/temp.pdf");
         try {
             int numberOfExistingSignatures = getNumberOfExistingSignatures(pdfFilePath);
-            System.out.println(numberOfExistingSignatures);
-            System.out.println(pageNumber);
 
             PrivateKey privateKey = getPrivateKey(keyStore,keyStoreAlias);
             Certificate[] certificateChain = getCertificateChain(keyStore,keyStoreAlias);
