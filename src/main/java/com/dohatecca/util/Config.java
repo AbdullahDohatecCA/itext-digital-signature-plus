@@ -104,7 +104,7 @@ public class Config {
     }
 
     public static Color getDangerColor(){
-        return new Color(0xD91919);
+        return new Color(0xFF0000);
     }
 
     public static ImageIcon getDohatecLogo(){
