@@ -12,7 +12,7 @@ public class PdfViewer {
     public JPanel getPdfViewerPanel() {
         controller.setToolBarVisible(false);
         controller.setPageViewMode(2,true);
-        controller.setPageFitMode(2,true);
+        controller.setPageFitMode(1,true);
         return pdfViewerPanel;
     }
 

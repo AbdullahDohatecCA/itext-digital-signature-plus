@@ -1,5 +1,6 @@
 package com.dohatecca.application;
 
+import com.dohatecca.util.image.ImageScaler;
 import com.dohatecca.util.pdf.PdfViewer;
 
 import javax.swing.*;
@@ -48,9 +49,11 @@ public class HomeScreen implements ActionListener, MouseListener {
     private String signedFileSaveLocationPath;
     private File lastSignatureImageLocationFile;
     private static PdfViewer pdfViewer;
+    private static ImageScaler imageScaler;
     public HomeScreen() {
         initPdfViewer();
         initIcons();
+        initImageScaler();
 
         createHomeScreenFrame();
         createMenuContainer();
@@ -99,12 +102,17 @@ public class HomeScreen implements ActionListener, MouseListener {
         savingProgressIcon = getLoadingIcon();
     }
 
+    private void initImageScaler(){
+        imageScaler = new ImageScaler();
+    }
+
     private void createHomeScreenFrame(){
         homeScreenFrame = new JFrame();
         homeScreenFrame.setTitle("DohatecCA Digital Signature Tool 2");
         homeScreenFrame.setIconImage(dohatecLogo.getImage());
         homeScreenFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         homeScreenFrame.setSize(1200,900);
+        homeScreenFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         homeScreenFrame.setLayout(new BorderLayout());
         homeScreenFrame.getContentPane().setBackground(getBackgroundColor());
     }
@@ -123,21 +131,20 @@ public class HomeScreen implements ActionListener, MouseListener {
 
     private void createImagePreviewPanel() {
         imagePreviewPanel = new JPanel();
-        imagePreviewPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
         imagePreviewPanel.setSize(1200,250);
         imagePreviewPanel.setBackground(getBackgroundColor());
+        imagePreviewPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
     }
 
     private void createSignatureImagePreview(){
         try{
             previewImageLabel = new JLabel();
             previewImageLabel.setPreferredSize(new Dimension(250,100));
-
             previewImageText = new JFormattedTextField();
             previewImageText.setFont(getRegularFont());
-            previewImageText.setMargin(new Insets(15,15,15,15));
             previewImageText.setBackground(null);
             previewImageText.setEditable(false);
+            previewImageText.setFocusable(false);
             previewImageText.setBorder(null);
 
             String lastSignatureImageLocationPath = getApplicationFilesPath()+"/lastSignatureImageLocationPath.txt";
@@ -148,7 +155,7 @@ public class HomeScreen implements ActionListener, MouseListener {
                 fileReader.close();
                 setSignatureImagePreview(signatureImageFilePath);
                 previewImageLabel.setIcon(getSignatureImagePreview());
-                previewImageText.setText("Image obtained from last selection.");
+                previewImageText.setText("Signature image obtained from last used signature image.");
                 previewImageText.setForeground(getPrimaryColor());
             }
             else{
@@ -190,7 +197,7 @@ public class HomeScreen implements ActionListener, MouseListener {
             JFileChooser imageFileChooser = new JFileChooser();
             FileNameExtensionFilter imageFilter = new FileNameExtensionFilter(
                     "Image files",
-                    "jpg","png","gif","bmp"
+                    "jpg","png","gif","bmp","jfif"
             );
             imageFileChooser.setFileFilter(imageFilter);
             int isSelected = imageFileChooser.showOpenDialog(homeScreenFrame);
@@ -207,7 +214,7 @@ public class HomeScreen implements ActionListener, MouseListener {
                 }
                 setSignatureImagePreview(signatureImageFilePath);
                 previewImageLabel.setIcon(getSignatureImagePreview());
-                previewImageText.setText("You have selected this image.");
+                previewImageText.setText("Signature image selected.");
                 previewImageText.setForeground(getPrimaryColor());
             }
         });
@@ -224,10 +231,10 @@ public class HomeScreen implements ActionListener, MouseListener {
         sign.setIcon(signIcon);
         sign.setFont(getRegularFont());
         sign.addActionListener(event -> {
-            if(selectedDocumentFilePath == null || selectedDocumentFilePath.equals("")) {
+            if(selectedDocumentFilePath == null || selectedDocumentFilePath.isEmpty()) {
                 showWarningMessage("Please open a PDF document first.",homeScreenFrame);
             }
-            else if(signatureImageFilePath == null || signatureImageFilePath.equals("")) {
+            else if(signatureImageFilePath == null || signatureImageFilePath.isEmpty()) {
                 showWarningMessage("Please select a signature image.",homeScreenFrame);
             }
             else{
@@ -251,10 +258,10 @@ public class HomeScreen implements ActionListener, MouseListener {
         save.setIcon(saveIcon);
         save.setFont(getRegularFont());
         save.addActionListener(event -> {
-            if(selectedDocumentFilePath == null || selectedDocumentFilePath.equals("")) {
+            if(selectedDocumentFilePath == null || selectedDocumentFilePath.isEmpty()) {
                 showWarningMessage("Please open a PDF document first.",homeScreenFrame);
             }
-            else if (signatureImageFilePath == null || signatureImageFilePath.equals("")) {
+            else if (signatureImageFilePath == null || signatureImageFilePath.isEmpty()) {
                 showWarningMessage("Please select a signature image.",homeScreenFrame);
             }
             else if (!Files.exists(Path.of(getApplicationFilesPath()+"/temp.pdf"))) {
@@ -349,9 +356,7 @@ public class HomeScreen implements ActionListener, MouseListener {
         savingProgressPanel.setBackground(getBackgroundColor());
 
         savingProgressLabel = new JLabel();
-        savingProgressLabel.setIcon(new ImageIcon(
-                savingProgressIcon.getImage().getScaledInstance(64,64,Image.SCALE_DEFAULT)
-        ));
+        savingProgressLabel.setIcon(savingProgressIcon);
 
         savingProgressPanel.add(savingProgressLabel);
         savingLoaderFrame.add(savingProgressPanel,BorderLayout.CENTER);
@@ -373,10 +378,10 @@ public class HomeScreen implements ActionListener, MouseListener {
     }
 
     public void setSignatureImagePreview(String imagePath){
-        previewImage = new ImageIcon(
-                new ImageIcon(imagePath)
-                        .getImage()
-                        .getScaledInstance(200,100,Image.SCALE_DEFAULT)
+        previewImage = imageScaler.scaleImage(
+                new ImageIcon(imagePath),
+                200,
+                100
         );
     }
 
