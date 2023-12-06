@@ -4,6 +4,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyStore;
@@ -17,6 +18,7 @@ import static com.dohatecca.util.Config.*;
 import static com.dohatecca.util.Message.*;
 
 public class SignScreen {
+    private HomeScreen homeScreen;
     private JFrame keySelectionWindow;
     private JPanel headerPanel;
     private JLabel headerLabel;
@@ -40,8 +42,10 @@ public class SignScreen {
     private static String reason;
     private static int pageNumber;
 
-    public void sign() {
+    public void sign(HomeScreen homeScreenRef) {
         try {
+            homeScreen = homeScreenRef;
+
             initProvider();
             initKeyStore();
             initIcons();
@@ -84,11 +88,11 @@ public class SignScreen {
 
     private void createKeySelectionWindow(){
         keySelectionWindow = new JFrame();
-        keySelectionWindow.setTitle("Keys");
+        keySelectionWindow.setTitle("Sign");
         keySelectionWindow.setIconImage(dohatecLogo.getImage());
         keySelectionWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         keySelectionWindow.setLayout(new BorderLayout());
-        keySelectionWindow.setSize(1000,337);
+        keySelectionWindow.setSize(800,600);
         keySelectionWindow.add(headerPanel,BorderLayout.NORTH);
         keySelectionWindow.add(keyListPanel,BorderLayout.CENTER);
         keySelectionWindow.add(footerPanel,BorderLayout.SOUTH);
@@ -99,10 +103,9 @@ public class SignScreen {
     private void createKeySelectionWindowHeader(){
         headerPanel = new JPanel();
         headerLabel = new JLabel();
-        headerPanel.setSize(new Dimension(1000,100));
         headerPanel.setBackground(getSecondaryColor());
-        headerPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        headerLabel.setText("Select Key");
+        headerPanel.setLayout(new FlowLayout(FlowLayout.LEFT,25,25));
+        headerLabel.setText("Select Digital Certificate");
         headerLabel.setFont(getBoldFont());
         headerLabel.setBackground(null);
         headerLabel.setForeground(getBackgroundColor());
@@ -159,7 +162,7 @@ public class SignScreen {
     private void createKeySelectionWindowFooter(){
         footerPanel = new JPanel();
         footerPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        footerPanel.setBackground(getSecondaryColor());
+        footerPanel.setBackground(getBackgroundColor());
         footerPanel.add(cancelButton);
         footerPanel.add(okButton);
     }
@@ -191,7 +194,6 @@ public class SignScreen {
                     }
                     else {
                         try {
-                            Files.deleteIfExists(Path.of(getApplicationFilesPath() + "/temp.pdf"));
                             setAlias((String) keyListTable.getValueAt(selectedRow, 0));
                             setReason(
                                     showQuestionMessage("What is the reason for this digital signature?",keySelectionWindow)
@@ -255,16 +257,27 @@ public class SignScreen {
     }
 
     private void doSignature(){
-        createSignProgressDialog();
-        Signature signature = new Signature();
-        signature.sign(
-                pdfFilePath,
-                signatureImagePath,
-                keyStore,
-                alias,
-                reason,
-                pageNumber
-        );
-        closeSignProgressDialog();
+        try{
+            createSignProgressDialog();
+            Signature signature = new Signature();
+            boolean isSigned = signature.sign(
+                    pdfFilePath,
+                    signatureImagePath,
+                    keyStore,
+                    alias,
+                    reason,
+                    pageNumber
+            );
+            closeSignProgressDialog();
+            if(isSigned) {
+                homeScreen.getPdfViewer().openPdf(
+                        getApplicationFilesPath()+"/temp.pdf"
+                );
+                showGeneralMessage("Signature applied.", null);
+            }
+        }
+        catch (Exception e) {
+            showErrorMessage(e.getMessage(),null);
+        }
     }
 }

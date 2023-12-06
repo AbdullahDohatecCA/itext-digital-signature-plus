@@ -6,15 +6,15 @@ import com.itextpdf.forms.fields.PdfFormField;
 import com.itextpdf.forms.fields.PdfSignatureFormField;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.colors.Color;
+import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.StampingProperties;
 import com.itextpdf.signatures.*;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
@@ -23,20 +23,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.dohatecca.util.Config.getApplicationFilesPath;
-import static com.dohatecca.util.Config.getResourcesPath;
+import static com.dohatecca.util.Config.*;
 import static com.dohatecca.util.Message.showErrorMessage;
 import static com.dohatecca.util.Message.showGeneralMessage;
 
 public class Signature {
-    public void sign(
+    public boolean sign(
             String pdfFilePath,
             String signatureImagePath,
             KeyStore keyStore,
             String keyStoreAlias,
             String reason,
             int pageNumber
-    ) {
+    ) throws IOException {
+        FileOutputStream fos = new FileOutputStream(getApplicationFilesPath()+"/temp.pdf");
         try {
             int numberOfExistingSignatures = getNumberOfExistingSignatures(pdfFilePath);
 
@@ -47,7 +47,7 @@ public class Signature {
             ITSAClient tsaClient = getTimestampAuthorityClient(certificateChain);
             List<ICrlClient> crlClientList = getOfflineCRLClients(certificateChain);
 
-            FileOutputStream fos = new FileOutputStream(getApplicationFilesPath()+"/temp.pdf");
+
             PdfReader reader = new PdfReader(pdfFilePath);
             PdfSigner signer = new PdfSigner(
                     reader,
@@ -85,10 +85,12 @@ public class Signature {
                     PdfSigner.CryptoStandard.CMS
             );
             fos.close();
-            showGeneralMessage("Signature applied.",null);
+            return true;
         }
         catch (Exception ex) {
+            fos.close();
             showErrorMessage(ex.getMessage(), null);
+            return false;
         }
     }
 
@@ -114,13 +116,15 @@ public class Signature {
     ) {
         try{
             ImageData signatureImage = ImageDataFactory.create(signatureImagePath);
-            pdfSignatureAppearance.setReason(reason)
-                    .setLocation(GeoLocation.getLocationFromTimeZone())
+            pdfSignatureAppearance
                     .setRenderingMode(PdfSignatureAppearance.RenderingMode.GRAPHIC_AND_DESCRIPTION)
-                    .setSignatureGraphic(signatureImage)
                     .setReuseAppearance(false)
+                    .setPageNumber(pageNumber)
                     .setPageRect(rectangle)
-                    .setPageNumber(pageNumber);
+                    .setSignatureCreator("DDST2")
+                    .setSignatureGraphic(signatureImage)
+                    .setReason(reason)
+                    .setLocation(GeoLocation.getLocationFromTimeZone());
         }
         catch (Exception ex) {
             showErrorMessage(ex.getMessage(), null);
@@ -181,7 +185,7 @@ public class Signature {
         }
         catch (Exception ex) {
             showErrorMessage(ex.getMessage(), null);
-            throw new RuntimeException(ex);
+            return 0;
         }
     }
 
