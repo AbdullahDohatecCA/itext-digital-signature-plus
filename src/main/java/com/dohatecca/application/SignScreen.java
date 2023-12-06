@@ -4,6 +4,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyStore;
@@ -256,22 +257,27 @@ public class SignScreen {
     }
 
     private void doSignature(){
-        createSignProgressDialog();
-        Signature signature = new Signature();
-        boolean isSigned = signature.sign(
-                pdfFilePath,
-                signatureImagePath,
-                keyStore,
-                alias,
-                reason,
-                pageNumber
-        );
-        closeSignProgressDialog();
-        if(isSigned) {
-            homeScreen.getPdfViewer().openPdf(
-                    getApplicationFilesPath()+"/temp.pdf"
+        try{
+            createSignProgressDialog();
+            Signature signature = new Signature();
+            boolean isSigned = signature.sign(
+                    pdfFilePath,
+                    signatureImagePath,
+                    keyStore,
+                    alias,
+                    reason,
+                    pageNumber
             );
-            showGeneralMessage("Signature applied.", null);
+            closeSignProgressDialog();
+            if(isSigned) {
+                homeScreen.getPdfViewer().openPdf(
+                        getApplicationFilesPath()+"/temp.pdf"
+                );
+                showGeneralMessage("Signature applied.", null);
+            }
+        }
+        catch (Exception e) {
+            showErrorMessage(e.getMessage(),null);
         }
     }
 }

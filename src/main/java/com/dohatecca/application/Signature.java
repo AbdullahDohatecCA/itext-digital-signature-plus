@@ -14,9 +14,7 @@ import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.StampingProperties;
 import com.itextpdf.signatures.*;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
@@ -37,7 +35,8 @@ public class Signature {
             String keyStoreAlias,
             String reason,
             int pageNumber
-    ) {
+    ) throws IOException {
+        FileOutputStream fos = new FileOutputStream(getApplicationFilesPath()+"/temp.pdf");
         try {
             int numberOfExistingSignatures = getNumberOfExistingSignatures(pdfFilePath);
             System.out.println(numberOfExistingSignatures);
@@ -50,7 +49,7 @@ public class Signature {
             ITSAClient tsaClient = getTimestampAuthorityClient(certificateChain);
             List<ICrlClient> crlClientList = getOfflineCRLClients(certificateChain);
 
-            FileOutputStream fos = new FileOutputStream(getApplicationFilesPath()+"/temp.pdf");
+
             PdfReader reader = new PdfReader(pdfFilePath);
             PdfSigner signer = new PdfSigner(
                     reader,
@@ -91,6 +90,7 @@ public class Signature {
             return true;
         }
         catch (Exception ex) {
+            fos.close();
             showErrorMessage(ex.getMessage(), null);
             return false;
         }
