@@ -110,7 +110,7 @@ public class OpenScreen {
     private void createTable(){
         String[] pdfSelectionTableHeadersArray = new String[]{"Location"};
         selectedDocumentsPathList.clear();
-        convertListToArray(selectedDocumentsPathList);
+        copyListToArray(selectedDocumentsPathList);
         selectedDocumentsTable = new JTable(selectedDocumentsPathArray,pdfSelectionTableHeadersArray);
         selectedDocumentsTable.setFont(getRegularFont());
         selectedDocumentsTable.setSelectionBackground(getSecondaryColor());
@@ -119,7 +119,7 @@ public class OpenScreen {
         selectedDocumentsTableScrollPane = new JScrollPane(selectedDocumentsTable);
     }
 
-    private void convertListToArray(ArrayList<String> locationList){
+    private void copyListToArray(ArrayList<String> locationList){
         for(int i=0;i<100;i++){
             selectedDocumentsPathArray[i][0] = null;
         }
@@ -188,7 +188,7 @@ public class OpenScreen {
                                 showErrorMessage("Invalid file type.", openScreenFrame);
                             }
                         }
-                        convertListToArray(selectedDocumentsPathList);
+                        copyListToArray(selectedDocumentsPathList);
                         openScreenFrame.repaint();
                     }
                 }
@@ -209,7 +209,7 @@ public class OpenScreen {
                         if(selectedFilePathIndex >= selectedDocumentsPathList.size()
                                 || selectedDocumentsPathList.get(selectedFilePathIndex).isEmpty()) return;
                         selectedDocumentsPathList.remove(selectedFilePathIndex);
-                        convertListToArray(selectedDocumentsPathList);
+                        copyListToArray(selectedDocumentsPathList);
                         selectedDocumentsTable.repaint();
                     }
                 }
