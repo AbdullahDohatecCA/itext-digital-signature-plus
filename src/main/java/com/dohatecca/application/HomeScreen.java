@@ -309,7 +309,8 @@ public class HomeScreen implements ActionListener, MouseListener {
         about.addActionListener(
                 event -> {
                     showGeneralMessage(
-                            "Developed by DohatecCA Team\nIcons by Lordicon.com",
+                            "Developed by DohatecCA Team\n" +
+                                    "Icons by Lordicon.com",
                             homeScreenFrame
                     );
                 }
