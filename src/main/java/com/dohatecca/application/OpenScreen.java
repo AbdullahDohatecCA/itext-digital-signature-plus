@@ -206,6 +206,8 @@ public class OpenScreen {
                 e -> {
                     int selectedFilePathIndex = selectedDocumentsTable.getSelectedRow();
                     if(selectedFilePathIndex != -1){
+                        if(selectedFilePathIndex >= selectedDocumentsPathList.size()
+                                || selectedDocumentsPathList.get(selectedFilePathIndex).isEmpty()) return;
                         selectedDocumentsPathList.remove(selectedFilePathIndex);
                         convertListToArray(selectedDocumentsPathList);
                         selectedDocumentsTable.repaint();
