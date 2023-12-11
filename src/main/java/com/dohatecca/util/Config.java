@@ -21,7 +21,8 @@ public class Config {
             File programDir = new File(systemDrive+"/DohatecCA/DST2");
             System.out.println("Program Directory Created: "+programDir.mkdirs());
         }
-        return systemDrive+"/DohatecCA/DST2";
+        return systemDrive+"/DWelcome.pdf\n" +
+                "Welcome.svgohatecCA/DST2";
     }
 
     public static String getConvertedI2PFolderPath(){
