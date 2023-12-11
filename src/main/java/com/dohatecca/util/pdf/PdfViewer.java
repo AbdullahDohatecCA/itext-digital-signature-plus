@@ -24,7 +24,9 @@ public class PdfViewer {
     public int getCurrentPageNumber() {
         return controller.getCurrentPageNumber();
     }
-
+    public void showPage(int pageNumber){
+        controller.showPage(pageNumber);
+    }
     public void closePdf() {
         controller.closeDocument();
     }

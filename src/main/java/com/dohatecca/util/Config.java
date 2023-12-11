@@ -87,11 +87,11 @@ public class Config {
     }
 
     public static Color getPrimaryColor(){
-        return new Color(0x0D6BA6);
+        return new Color(0x17426A);
     }
 
     public static Color getSecondaryColor(){
-        return new Color(0x5697BF);
+        return new Color(0x446594);
     }
 
     public static Color getBackgroundColor(){

@@ -1,5 +1,6 @@
 package com.dohatecca.application;
 
+import com.dohatecca.util.pdf.PdfViewer;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.swing.*;
@@ -270,9 +271,11 @@ public class SignScreen {
             );
             closeSignProgressDialog();
             if(isSigned) {
-                homeScreen.getPdfViewer().openPdf(
+                PdfViewer pdfViewer = homeScreen.getPdfViewer();
+                pdfViewer.openPdf(
                         getApplicationFilesPath()+"/temp.pdf"
                 );
+                pdfViewer.showPage(pageNumber-1);
                 showGeneralMessage("Signature applied.", null);
             }
         }
