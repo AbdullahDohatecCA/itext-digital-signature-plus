@@ -1,5 +1,7 @@
 package com.dohatecca.util;
 
+import com.dohatecca.util.image.ImageScaler;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
@@ -8,6 +10,7 @@ import java.nio.file.Path;
 
 import static com.dohatecca.util.Message.showErrorMessage;
 public class Config {
+    public static final ImageScaler imageScaler = new ImageScaler();
     public static String getResourcesPath(){
         return "resources";
     }
@@ -83,11 +86,11 @@ public class Config {
     }
 
     public static Color getPrimaryColor(){
-        return new Color(0x0D6BA6);
+        return new Color(0x17426A);
     }
 
     public static Color getSecondaryColor(){
-        return new Color(0x5697BF);
+        return new Color(0x446594);
     }
 
     public static Color getBackgroundColor(){
@@ -107,59 +110,43 @@ public class Config {
     }
 
     public static ImageIcon getDohatecLogo(){
-        Image iconImage = new ImageIcon(getResourcesPath()+"/images/Dohatec.png")
-                .getImage()
-                .getScaledInstance(512,512,Image.SCALE_DEFAULT);
-        return new ImageIcon(iconImage);
+        ImageIcon iconImage = new ImageIcon(getResourcesPath()+"/images/Dohatec.png");
+        return imageScaler.scaleImage(iconImage,512,512);
     }
 
     public static ImageIcon getOpenIcon(){
-        Image iconImage = new ImageIcon(getResourcesPath()+"/images/Open.gif")
-                .getImage()
-                .getScaledInstance(64,64,Image.SCALE_DEFAULT);
-        return new ImageIcon(iconImage);
+        ImageIcon iconImage = new ImageIcon(getResourcesPath()+"/images/Open.gif");
+        return imageScaler.scaleImage(iconImage,64,64);
     }
 
     public static ImageIcon getImageIcon(){
-        Image iconImage = new ImageIcon(getResourcesPath()+"/images/Image.gif")
-                .getImage()
-                .getScaledInstance(64,64,Image.SCALE_DEFAULT);
-        return new ImageIcon(iconImage);
+        ImageIcon iconImage = new ImageIcon(getResourcesPath()+"/images/Image.gif");
+        return imageScaler.scaleImage(iconImage,64,64);
     }
 
     public static ImageIcon getSignIcon(){
-        Image iconImage = new ImageIcon(getResourcesPath()+"/images/Sign.gif")
-                .getImage()
-                .getScaledInstance(64,64,Image.SCALE_DEFAULT);
-        return new ImageIcon(iconImage);
+        ImageIcon iconImage = new ImageIcon(getResourcesPath()+"/images/Sign.gif");
+        return imageScaler.scaleImage(iconImage,64,64);
     }
 
     public static ImageIcon getSaveIcon(){
-        Image iconImage = new ImageIcon(getResourcesPath()+"/images/Save.gif")
-                .getImage()
-                .getScaledInstance(64,64,Image.SCALE_DEFAULT);
-        return new ImageIcon(iconImage);
+        ImageIcon iconImage = new ImageIcon(getResourcesPath()+"/images/Save.gif");
+        return imageScaler.scaleImage(iconImage,64,64);
     }
 
     public static ImageIcon getAboutIcon(){
-        Image iconImage = new ImageIcon(getResourcesPath()+"/images/About.gif")
-                .getImage()
-                .getScaledInstance(64,64,Image.SCALE_DEFAULT);
-        return new ImageIcon(iconImage);
+        ImageIcon iconImage = new ImageIcon(getResourcesPath()+"/images/About.gif");
+        return imageScaler.scaleImage(iconImage,64,64);
     }
 
     public static ImageIcon getDefaultSignatureImage(){
-        Image iconImage = new ImageIcon(getResourcesPath()+"/images/DefaultSignature.png")
-                .getImage()
-                .getScaledInstance(200,100,Image.SCALE_DEFAULT);
-        return new ImageIcon(iconImage);
+        ImageIcon iconImage = new ImageIcon(getResourcesPath()+"/images/DefaultSignature.png");
+        return imageScaler.scaleImage(iconImage,200,100);
     }
 
     public static ImageIcon getLoadingIcon(){
-        Image iconImage = new ImageIcon(getResourcesPath()+"/images/Loading.gif")
-                .getImage()
-                .getScaledInstance(64,64,Image.SCALE_DEFAULT);
-        return new ImageIcon(iconImage);
+        ImageIcon iconImage = new ImageIcon(getResourcesPath()+"/images/Loading.gif");
+        return imageScaler.scaleImage(iconImage,64,64);
     }
 
     public static String getWelcomePdfPath(){

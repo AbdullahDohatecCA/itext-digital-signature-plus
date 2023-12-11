@@ -124,22 +124,20 @@ public class HomeScreen implements ActionListener, MouseListener {
 
     private void createMenubarPanel() {
         menubarPanel = new JPanel();
-        menubarPanel.setSize(1200,250);
         menubarPanel.setBackground(getPrimaryColor());
-        menubarPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+        menubarPanel.setLayout(new FlowLayout(FlowLayout.LEADING,25,10));
     }
 
     private void createImagePreviewPanel() {
         imagePreviewPanel = new JPanel();
-        imagePreviewPanel.setSize(1200,250);
         imagePreviewPanel.setBackground(getBackgroundColor());
-        imagePreviewPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+        imagePreviewPanel.setLayout(new FlowLayout(FlowLayout.LEADING,25,10));
     }
 
     private void createSignatureImagePreview(){
         try{
             previewImageLabel = new JLabel();
-            previewImageLabel.setPreferredSize(new Dimension(250,100));
+            previewImageLabel.setPreferredSize(new Dimension(200,100));
             previewImageText = new JFormattedTextField();
             previewImageText.setFont(getRegularFont());
             previewImageText.setBackground(null);
@@ -309,7 +307,8 @@ public class HomeScreen implements ActionListener, MouseListener {
         about.addActionListener(
                 event -> {
                     showGeneralMessage(
-                            "Developed by DohatecCA Team\nIcons by Lordicon.com",
+                            "Developed by DohatecCA Team\n" +
+                                    "Icons by Lordicon.com",
                             homeScreenFrame
                     );
                 }
