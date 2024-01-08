@@ -28,6 +28,10 @@ import static com.dohatecca.util.Message.showErrorMessage;
 import static com.dohatecca.util.Message.showGeneralMessage;
 
 public class Signature {
+    //height and width measured in user units which is unit of 1/72 inch
+    private static final int SIGNATURE_HEIGHT = 36;
+    private static final int SIGNATURE_WIDTH = 72;
+
     public boolean sign(
             String pdfFilePath,
             String signatureImagePath,
@@ -59,8 +63,8 @@ public class Signature {
             Rectangle rectangle = new Rectangle(
                     getSignaturePositionX(pdfFilePath,numberOfExistingSignatures),
                     getSignaturePositionY(pdfFilePath,numberOfExistingSignatures),
-                    200,
-                    100
+                    SIGNATURE_WIDTH,
+                    SIGNATURE_HEIGHT
             );
 
             setSignatureAppearance(
@@ -137,8 +141,8 @@ public class Signature {
             PdfReader reader = new PdfReader(pdfFilePath);
             PdfDocument document = new PdfDocument(reader);
             int pdfPageWidth = (int) document.getPage(1).getPageSize().getWidth();
-            int numberOfSignaturesPerRow = pdfPageWidth/200;
-            int signaturePositionX = (numberOfExistingSignatures%numberOfSignaturesPerRow)*200;
+            int numberOfSignaturesPerRow = pdfPageWidth/SIGNATURE_WIDTH;
+            int signaturePositionX = (numberOfExistingSignatures%numberOfSignaturesPerRow)*SIGNATURE_WIDTH;
             return signaturePositionX;
         }
         catch (Exception ex) {
@@ -152,9 +156,9 @@ public class Signature {
             PdfReader reader = new PdfReader(pdfFilePath);
             PdfDocument document = new PdfDocument(reader);
             int pdfPageWidth = (int) document.getPage(1).getPageSize().getWidth();
-            int numberOfSignaturesPerRow = pdfPageWidth/200;
+            int numberOfSignaturesPerRow = pdfPageWidth/SIGNATURE_WIDTH;
             int rowCount = numberOfExistingSignatures/numberOfSignaturesPerRow;
-            int signaturePositionY = rowCount*100;
+            int signaturePositionY = rowCount*SIGNATURE_HEIGHT;
             return signaturePositionY;
         }
         catch (Exception ex) {

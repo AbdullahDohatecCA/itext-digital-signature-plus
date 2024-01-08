@@ -40,8 +40,7 @@ public class HomeScreen implements ActionListener, MouseListener {
     private ImageIcon signIcon;
     private ImageIcon saveIcon;
     private ImageIcon aboutIcon;
-    private ImageIcon previewImage;
-    private ImageIcon defaultSignatureImage;
+    private ImageIcon signaturePreviewImage;
     private ImageIcon loadingIcon;
     private JFormattedTextField previewImageText;
     private String selectedDocumentFilePath;
@@ -93,7 +92,6 @@ public class HomeScreen implements ActionListener, MouseListener {
 
     private void initIcons(){
         dohatecLogo = getDohatecLogo();
-        defaultSignatureImage = getDefaultSignatureImage();
         openIcon = getOpenIcon();
         imageIcon = getImageIcon();
         signIcon = getSignIcon();
@@ -151,14 +149,16 @@ public class HomeScreen implements ActionListener, MouseListener {
                 BufferedReader fileReader = new BufferedReader(new FileReader(lastSignatureImageLocationFile));
                 signatureImageFilePath = fileReader.readLine();
                 fileReader.close();
-                setSignatureImagePreview(signatureImageFilePath);
-                previewImageLabel.setIcon(getSignatureImagePreview());
+                setSignaturePreviewImage(signatureImageFilePath);
+                previewImageLabel.setIcon(getSignaturePreviewImage());
                 previewImageText.setText("Signature image obtained from last used signature image.");
                 previewImageText.setForeground(getPrimaryColor());
             }
             else{
-                previewImageLabel.setIcon(defaultSignatureImage);
-                previewImageText.setText("Select your signature image.");
+                signatureImageFilePath = getResourcesPath()+"/images/DefaultSignature.jpeg";
+                setSignaturePreviewImage(signatureImageFilePath);
+                previewImageLabel.setIcon(getSignaturePreviewImage());
+                previewImageText.setText("Select your signature image to change default image.");
                 previewImageText.setForeground(getWarningColor());
             }
         }
@@ -210,8 +210,8 @@ public class HomeScreen implements ActionListener, MouseListener {
                 catch(Exception e){
                     showErrorMessage(e.getMessage(),homeScreenFrame);
                 }
-                setSignatureImagePreview(signatureImageFilePath);
-                previewImageLabel.setIcon(getSignatureImagePreview());
+                setSignaturePreviewImage(signatureImageFilePath);
+                previewImageLabel.setIcon(getSignaturePreviewImage());
                 previewImageText.setText("Signature image selected.");
                 previewImageText.setForeground(getPrimaryColor());
             }
@@ -375,16 +375,16 @@ public class HomeScreen implements ActionListener, MouseListener {
         return this.selectedDocumentFilePath;
     }
 
-    public void setSignatureImagePreview(String imagePath){
-        previewImage = imageScaler.scaleImage(
+    public void setSignaturePreviewImage(String imagePath){
+        signaturePreviewImage = imageScaler.scaleImage(
                 new ImageIcon(imagePath),
                 200,
                 100
         );
     }
 
-    public ImageIcon getSignatureImagePreview(){
-        return previewImage;
+    public ImageIcon getSignaturePreviewImage(){
+        return signaturePreviewImage;
     }
 
     @Override

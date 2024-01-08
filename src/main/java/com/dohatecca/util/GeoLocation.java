@@ -13,9 +13,8 @@ import java.time.ZonedDateTime;
 import static com.dohatecca.util.Message.showErrorMessage;
 
 public class GeoLocation {
-    private static final String IP_INFO_API = "https://ipinfo.io/json?token" +
-            "" +
-            "=c0fbb2ee235ef0";
+    private static final String IP_INFO_API = "https://ipinfo.io/json" +
+            "?token=c0fbb2ee235ef0";
     public static String getLocationFromIP(){
         try {
             URL ipInfoURL = new URL(IP_INFO_API);
