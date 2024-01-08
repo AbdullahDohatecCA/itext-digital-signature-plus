@@ -2,7 +2,6 @@ package com.dohatecca.util;
 
 import org.json.JSONObject;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -41,6 +40,7 @@ public class GeoLocation {
 
     public static String getLocationFromTimeZone(){
         String timeZone = String.valueOf(ZonedDateTime.now(ZoneId.systemDefault()).getZone());
-        return timeZone;
+        if(timeZone.equals("Asia/Dhaka")) return "Bangladesh";
+        else return "Outside Bangladesh";
     }
 }
