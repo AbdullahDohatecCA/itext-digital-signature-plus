@@ -309,7 +309,7 @@ public class HomeScreen implements ActionListener, MouseListener {
                     showGeneralMessage(
                             "About\n" +
                                     "Version 2.1.2\n" +
-                            "Developed by DohatecCA Team\n" +
+                                    "Developed by DohatecCA Team\n" +
                                     "for RAJUK\n" +
                                     "to be used on Electronic Construction Permitting System (ECPS)\n" +
                                     "Icons by Lordicon.com",
