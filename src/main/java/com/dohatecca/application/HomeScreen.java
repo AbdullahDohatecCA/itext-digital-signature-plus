@@ -20,6 +20,7 @@ import static com.dohatecca.util.Config.*;
 import static com.dohatecca.util.Message.*;
 
 public class HomeScreen implements ActionListener, MouseListener {
+    private OpenScreen openScreen;
     private JFrame homeScreenFrame;
     private JFrame savingFrame;
     private JPanel menuContainer;
@@ -177,7 +178,7 @@ public class HomeScreen implements ActionListener, MouseListener {
         open.setIcon(openIcon);
         open.setFont(getRegularFont());
         open.addActionListener(event -> {
-            OpenScreen openScreen = new OpenScreen(this);
+            if(openScreen == null) openScreen = new OpenScreen(this);
         });
         open.addMouseListener(this);
     }
