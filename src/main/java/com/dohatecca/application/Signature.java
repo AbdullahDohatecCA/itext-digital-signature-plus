@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.dohatecca.util.Config.*;
+import static com.dohatecca.util.GeoLocation.*;
 import static com.dohatecca.util.Message.showErrorMessage;
 import static com.dohatecca.util.Message.showGeneralMessage;
 
@@ -128,7 +129,7 @@ public class Signature {
                     .setSignatureCreator("DDST2")
                     .setSignatureGraphic(signatureImage)
                     .setReason(reason)
-                    .setLocation(GeoLocation.getLocationFromTimeZone());
+                    .setLocation(getLocationFromDatabase());
         }
         catch (Exception ex) {
             showErrorMessage(ex.getMessage(), null);
