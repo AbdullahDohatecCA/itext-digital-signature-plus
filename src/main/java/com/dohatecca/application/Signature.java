@@ -129,7 +129,7 @@ public class Signature {
                     .setSignatureCreator("DDST2")
                     .setSignatureGraphic(signatureImage)
                     .setReason(reason)
-                    .setLocation(getLocationFromDatabase());
+                    .setLocation(getLocationFromTimeZone());
         }
         catch (Exception ex) {
             showErrorMessage(ex.getMessage(), null);
