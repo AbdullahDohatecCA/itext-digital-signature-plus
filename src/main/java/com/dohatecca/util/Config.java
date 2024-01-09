@@ -139,11 +139,6 @@ public class Config {
         return imageScaler.scaleImage(iconImage,64,64);
     }
 
-    public static ImageIcon getDefaultSignatureImage(){
-        ImageIcon iconImage = new ImageIcon(getResourcesPath()+"/images/DefaultSignature.png");
-        return imageScaler.scaleImage(iconImage,200,100);
-    }
-
     public static ImageIcon getLoadingIcon(){
         ImageIcon iconImage = new ImageIcon(getResourcesPath()+"/images/Loading.gif");
         return imageScaler.scaleImage(iconImage,64,64);
