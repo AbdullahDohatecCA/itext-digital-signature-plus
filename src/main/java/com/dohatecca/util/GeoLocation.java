@@ -39,8 +39,7 @@ public class GeoLocation {
             String postal = ipInfo.getString("postal");
             return String.format("%s,%s-%s",city,country,postal);
         } catch (Exception e) {
-            showErrorMessage(e.getMessage(), null);
-            return "Unknown";
+            return "Unavailable";
         }
     }
 
@@ -77,8 +76,7 @@ public class GeoLocation {
             return String.format("%s",country);
         }
         catch (Exception e) {
-            showErrorMessage(e.getMessage(), null);
-            return "Unknown";
+            return "Unavailable";
         }
     }
 }

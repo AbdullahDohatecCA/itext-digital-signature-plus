@@ -283,4 +283,8 @@ public class OpenScreen {
     private void closeMergeProgressDialog(){
         mergingDialog.dispose();
     }
+
+    public void closeOpenScreen(){
+        openScreenFrame.dispose();
+    }
 }
