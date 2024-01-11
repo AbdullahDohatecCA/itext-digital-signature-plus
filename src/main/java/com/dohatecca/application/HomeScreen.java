@@ -310,7 +310,7 @@ public class HomeScreen implements ActionListener, MouseListener {
                 event -> {
                     showGeneralMessage(
                             "About\n" +
-                                    "Version 2.1.2\n" +
+                                    "Version 2024.1.1\n" +
                                     "Developed by DohatecCA Team\n" +
                                     "for RAJUK\n" +
                                     "to be used on Electronic Construction Permitting System (ECPS)\n" +
