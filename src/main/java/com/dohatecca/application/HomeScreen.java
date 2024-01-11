@@ -178,7 +178,8 @@ public class HomeScreen implements ActionListener, MouseListener {
         open.setIcon(openIcon);
         open.setFont(getRegularFont());
         open.addActionListener(event -> {
-            if(openScreen == null) openScreen = new OpenScreen(this);
+            if(openScreen != null) openScreen.closeOpenScreen();
+            openScreen = new OpenScreen(this);
         });
         open.addMouseListener(this);
     }
