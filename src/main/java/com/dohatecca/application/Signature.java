@@ -1,20 +1,21 @@
 package com.dohatecca.application;
 
-import com.dohatecca.util.GeoLocation;
 import com.itextpdf.forms.PdfAcroForm;
 import com.itextpdf.forms.fields.PdfFormField;
 import com.itextpdf.forms.fields.PdfSignatureFormField;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.kernel.colors.Color;
-import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.StampingProperties;
 import com.itextpdf.signatures.*;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
@@ -23,13 +24,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.dohatecca.util.Config.*;
-import static com.dohatecca.util.GeoLocation.*;
+import static com.dohatecca.util.Config.getApplicationFilesPath;
+import static com.dohatecca.util.Config.getResourcesPath;
+import static com.dohatecca.util.GeoLocation.getLocationFromDatabase;
 import static com.dohatecca.util.Message.showErrorMessage;
-import static com.dohatecca.util.Message.showGeneralMessage;
 
 public class Signature {
-    //height and width measured in user units which is unit of 1/72 inch
+    //height and width measured in user units. 1 inch = 72 user units
     private static final int SIGNATURE_HEIGHT = 36;
     private static final int SIGNATURE_WIDTH = 72;
 
@@ -54,19 +55,19 @@ public class Signature {
 
 
             PdfReader reader = new PdfReader(pdfFilePath);
-            PdfSigner signer = new PdfSigner(
-                    reader,
-                    fos,
-                    new StampingProperties().useAppendMode()
-            );
-            signer.setFieldName(String.format("Digital Signature %d",numberOfExistingSignatures+1));
-
             Rectangle rectangle = new Rectangle(
                     getSignaturePositionX(pdfFilePath,numberOfExistingSignatures),
                     getSignaturePositionY(pdfFilePath,numberOfExistingSignatures),
                     SIGNATURE_WIDTH,
                     SIGNATURE_HEIGHT
             );
+
+            PdfSigner signer = new PdfSigner(
+                    reader,
+                    fos,
+                    new StampingProperties().useAppendMode()
+            );
+            signer.setFieldName(String.format("Digital Signature %d",numberOfExistingSignatures+1));
 
             setSignatureAppearance(
                     signer.getSignatureAppearance(),
@@ -129,7 +130,7 @@ public class Signature {
                     .setSignatureCreator("DDST2")
                     .setSignatureGraphic(signatureImage)
                     .setReason(reason)
-                    .setLocation(getLocationFromTimeZone());
+                    .setLocation(getLocationFromDatabase());
         }
         catch (Exception ex) {
             showErrorMessage(ex.getMessage(), null);
@@ -137,14 +138,24 @@ public class Signature {
         }
     }
 
-    private int getSignaturePositionX(String pdfFilePath,int numberOfExistingSignatures){
+    private float getSignaturePositionX(String pdfFilePath, int numberOfExistingSignatures){
         try{
-            PdfReader reader = new PdfReader(pdfFilePath);
-            PdfDocument document = new PdfDocument(reader);
-            int pdfPageWidth = (int) document.getPage(1).getPageSize().getWidth();
-            int numberOfSignaturesPerRow = pdfPageWidth/SIGNATURE_WIDTH;
-            int signaturePositionX = (numberOfExistingSignatures%numberOfSignaturesPerRow)*SIGNATURE_WIDTH;
-            return signaturePositionX;
+            PdfReader pReader = new PdfReader(pdfFilePath);
+            PdfDocument pDocument = new PdfDocument(pReader);
+            PdfPage pPage = pDocument.getPage(1);
+            Rectangle pageSize = pPage.getPageSizeWithRotation();
+            int pdfPageWidth = (int) pageSize.getWidth();
+            int pdfPageHeight = (int) pageSize.getHeight();
+            int numberOfSignaturesPerRow;
+            int rowCount;
+            if(pPage.getRotation() == 0) {
+                numberOfSignaturesPerRow = pdfPageWidth/SIGNATURE_WIDTH;
+                return (numberOfExistingSignatures%numberOfSignaturesPerRow)*SIGNATURE_WIDTH;
+            }
+            //signature gets rotated in 90-degree rotation. Therefore, Height and Width swapped.
+            numberOfSignaturesPerRow = pdfPageWidth/SIGNATURE_HEIGHT;
+            rowCount = numberOfExistingSignatures/numberOfSignaturesPerRow;
+            return pdfPageHeight-((++rowCount)*SIGNATURE_WIDTH);
         }
         catch (Exception ex) {
             showErrorMessage(ex.getMessage(), null);
@@ -152,15 +163,23 @@ public class Signature {
         }
     }
 
-    private int getSignaturePositionY(String pdfFilePath,int numberOfExistingSignatures){
+    private float getSignaturePositionY(String pdfFilePath,int numberOfExistingSignatures){
         try{
-            PdfReader reader = new PdfReader(pdfFilePath);
-            PdfDocument document = new PdfDocument(reader);
-            int pdfPageWidth = (int) document.getPage(1).getPageSize().getWidth();
-            int numberOfSignaturesPerRow = pdfPageWidth/SIGNATURE_WIDTH;
-            int rowCount = numberOfExistingSignatures/numberOfSignaturesPerRow;
-            int signaturePositionY = rowCount*SIGNATURE_HEIGHT;
-            return signaturePositionY;
+            PdfReader pReader = new PdfReader(pdfFilePath);
+            PdfDocument pDocument = new PdfDocument(pReader);
+            PdfPage pPage = pDocument.getPage(1);
+            Rectangle pageSize = pPage.getPageSizeWithRotation();
+            int pdfPageWidth = (int) pageSize.getWidth();
+            int numberOfSignaturesPerRow;
+            int rowCount;
+            if(pPage.getRotation() == 0){
+                numberOfSignaturesPerRow = pdfPageWidth/SIGNATURE_WIDTH;
+                rowCount = numberOfExistingSignatures/numberOfSignaturesPerRow;
+                return rowCount*SIGNATURE_HEIGHT;
+            }
+            //signature gets rotated in 90-degree rotation. Therefore, Height and Width swapped.
+            numberOfSignaturesPerRow = pdfPageWidth/SIGNATURE_HEIGHT;
+            return ((numberOfExistingSignatures%numberOfSignaturesPerRow)*SIGNATURE_HEIGHT);
         }
         catch (Exception ex) {
             showErrorMessage(ex.getMessage(), null);
