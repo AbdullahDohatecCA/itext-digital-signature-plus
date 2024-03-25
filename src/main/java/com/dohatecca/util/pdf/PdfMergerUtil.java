@@ -1,35 +1,28 @@
 package com.dohatecca.util.pdf;
 
-import com.dohatecca.util.Config;
 import com.itextpdf.forms.PdfAcroForm;
 import com.itextpdf.forms.fields.PdfFormField;
 import com.itextpdf.forms.fields.PdfSignatureFormField;
 import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.kernel.pdf.collection.PdfCollection;
-import com.itextpdf.kernel.pdf.collection.PdfCollectionSchema;
-import com.itextpdf.kernel.pdf.filespec.PdfFileSpec;
 import com.itextpdf.kernel.utils.PdfMerger;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.dohatecca.util.Message.showErrorMessage;
-
 public class PdfMergerUtil {
-    private static final String mergedPdfFolderPath = Config.getMergedPdfFolderPath();
-    public String mergePdf(ArrayList<String> toBeMergedPdfPathsLsit){
+    public String mergePdf(ArrayList<String> toBeMergedPdfPathsList){
         try{
-            String mergedPdfFilePath = mergedPdfFolderPath+"/"+getMergedPdfFileName();
+            String mergedPdfFilePath = "src/main/resources/output/"+getMergedPdfFileName();
             PdfDocument mergedPdf = new PdfDocument(new PdfWriter(mergedPdfFilePath));
             PdfMerger pdfMerger = new PdfMerger(mergedPdf);
 
-            for(String path: toBeMergedPdfPathsLsit){
+            for(String path: toBeMergedPdfPathsList){
                 PdfDocument pdf = new PdfDocument(new PdfReader(path));
                 removeAllExistingSignatures(pdf);
                 pdfMerger.merge(pdf,1,pdf.getNumberOfPages());
@@ -59,8 +52,8 @@ public class PdfMergerUtil {
                 }
             }
         }
-        catch (Exception ex) {
-            showErrorMessage(ex.getMessage(), null);
+        catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -69,5 +62,14 @@ public class PdfMergerUtil {
         String[] today = new Date().toString().split(" ");
         String mergedPdfFileName = String.format("merged%s%s.pdf",today[1],id[0]);
         return mergedPdfFileName;
+    }
+
+    public static void main(String[] args) throws IOException {
+        ArrayList<String> toBeMerged = new ArrayList<>();
+        toBeMerged.add("src/main/resources/input/pdf_sample.pdf");
+        toBeMerged.add("src/main/resources/input/sample_pdf_2.pdf");
+        PdfMergerUtil merger = new PdfMergerUtil();
+        FileOutputStream output = new FileOutputStream(merger.mergePdf(toBeMerged));
+        output.close();
     }
 }

@@ -24,11 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.dohatecca.util.Config.getApplicationFilesPath;
-import static com.dohatecca.util.Config.getResourcesPath;
-import static com.dohatecca.util.GeoLocation.getLocationFromDatabase;
-import static com.dohatecca.util.Message.showErrorMessage;
-
 public class Signature {
     //height and width measured in user units. 1 inch = 72 user units
     private static final int SIGNATURE_HEIGHT = 36;
@@ -42,7 +37,7 @@ public class Signature {
             String reason,
             int pageNumber
     ) throws IOException {
-        FileOutputStream fos = new FileOutputStream(getApplicationFilesPath()+"/temp.pdf");
+        FileOutputStream fos = new FileOutputStream("src/main/resources/output"+"/signed.pdf");
         try {
             int numberOfExistingSignatures = getNumberOfExistingSignatures(pdfFilePath);
 
@@ -51,7 +46,7 @@ public class Signature {
 
             IOcspClient ocspClient = getOCSPClient();
             ITSAClient tsaClient = getTimestampAuthorityClient(certificateChain);
-            List<ICrlClient> crlClientList = getOfflineCRLClients(certificateChain);
+            List<ICrlClient> crlClientList = null;
 
 
             PdfReader reader = new PdfReader(pdfFilePath);
@@ -84,7 +79,7 @@ public class Signature {
                     digest,
                     privateKeySignature,
                     certificateChain,
-                    crlClientList,
+                    null,
                     null,
                     null,
                     0,
@@ -95,7 +90,7 @@ public class Signature {
         }
         catch (Exception ex) {
             fos.close();
-            showErrorMessage(ex.getMessage(), null);
+            System.out.println(ex.getMessage());
             return false;
         }
     }
@@ -108,7 +103,7 @@ public class Signature {
         IExternalSignature privateKeySignature = new PrivateKeySignature(
                 privateKey,
                 DigestAlgorithms.SHA256,
-                "SunMSCAPI"
+                "BC"
         );
         return privateKeySignature;
     }
@@ -127,13 +122,13 @@ public class Signature {
                     .setReuseAppearance(false)
                     .setPageNumber(pageNumber)
                     .setPageRect(rectangle)
-                    .setSignatureCreator("DDST2")
+                    .setSignatureCreator("itext sign")
                     .setSignatureGraphic(signatureImage)
                     .setReason(reason)
-                    .setLocation(getLocationFromDatabase());
+                    .setLocation("Bangladesh");
         }
         catch (Exception ex) {
-            showErrorMessage(ex.getMessage(), null);
+            System.out.println(ex.getMessage());
             throw new RuntimeException(ex);
         }
     }
@@ -158,7 +153,7 @@ public class Signature {
             return pdfPageHeight-((++rowCount)*SIGNATURE_WIDTH);
         }
         catch (Exception ex) {
-            showErrorMessage(ex.getMessage(), null);
+            System.out.println(ex.getMessage());
             throw new RuntimeException(ex);
         }
     }
@@ -182,7 +177,7 @@ public class Signature {
             return ((numberOfExistingSignatures%numberOfSignaturesPerRow)*SIGNATURE_HEIGHT);
         }
         catch (Exception ex) {
-            showErrorMessage(ex.getMessage(), null);
+            System.out.println(ex.getMessage());
             throw new RuntimeException(ex);
         }
     }
@@ -208,7 +203,7 @@ public class Signature {
             }
         }
         catch (Exception ex) {
-            showErrorMessage(ex.getMessage(), null);
+            System.out.println(ex.getMessage());
             return 0;
         }
     }
@@ -218,7 +213,7 @@ public class Signature {
             return (PrivateKey) keyStore.getKey(keyStoreAlias,null);
         }
         catch (Exception ex) {
-            showErrorMessage(ex.getMessage(), null);
+            System.out.println(ex.getMessage());
             throw new RuntimeException(ex);
         }
     }
@@ -228,7 +223,7 @@ public class Signature {
             return keyStore.getCertificateChain(keyStoreAlias);
         }
         catch (Exception ex) {
-            showErrorMessage(ex.getMessage(), null);
+            System.out.println(ex.getMessage());
             throw new RuntimeException(ex);
         }
     }
@@ -238,7 +233,7 @@ public class Signature {
             return new OcspClientBouncyCastle(null);
         }
         catch (Exception ex) {
-            showErrorMessage(ex.getMessage(), null);
+            System.out.println(ex.getMessage());
             throw new RuntimeException(ex);
         }
     }
@@ -256,7 +251,7 @@ public class Signature {
             return tsaClient;
         }
         catch (Exception ex) {
-            showErrorMessage(ex.getMessage(), null);
+            System.out.println(ex.getMessage());
             throw new RuntimeException(ex);
         }
     }
@@ -264,7 +259,7 @@ public class Signature {
     private List<ICrlClient> getOfflineCRLClients(Certificate[] certificateChain){
         try{
             List<ICrlClient> crlClientList =  new ArrayList<ICrlClient>();
-            FileInputStream is = new FileInputStream(getResourcesPath()+"/crls/dohatecca_crl.crl");
+            FileInputStream is = new FileInputStream("/path/to/crl");
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             byte[] buf = new byte[1024*1024];
             while (is.read(buf) != -1) {
@@ -274,7 +269,7 @@ public class Signature {
             return crlClientList;
         }
         catch (Exception ex) {
-            showErrorMessage(ex.getMessage(), null);
+            System.out.println(ex.getMessage());
             throw new RuntimeException(ex);
         }
     }
@@ -286,7 +281,7 @@ public class Signature {
             return crlClientList;
         }
         catch (Exception ex) {
-            showErrorMessage(ex.getMessage(), null);
+            System.out.println(ex.getMessage());
             throw new RuntimeException(ex);
         }
     }

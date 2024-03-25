@@ -7,18 +7,20 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Image;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
 
-import static com.dohatecca.util.Config.*;
-
 public class PdfConverter {
     public String convertImageToPdf(String imageFilePath){
         try {
-            String[] splitPath = imageFilePath.split("\\\\");
+            String[] splitPath = imageFilePath.split("/");
             System.out.println(Arrays.toString(splitPath));
-            String i2pPath = getConvertedI2PFolderPath()+"/"+ getImage2PdfFileName(splitPath[splitPath.length-1]);
+            String i2pPath = "src/main/resources/output/"+ getImage2PdfFileName(splitPath[splitPath.length-1]);
             PdfWriter pdfWriter = new PdfWriter(i2pPath);
             PdfDocument pdfDocument = new PdfDocument(pdfWriter);
             Document document = new Document(pdfDocument);
@@ -42,5 +44,12 @@ public class PdfConverter {
         String[] today = new Date().toString().split(" ");
         String image2PdfFileName = String.format("i2p%s%s_%s.pdf",today[1],id[0],originalFileName);
         return image2PdfFileName;
+    }
+
+    public static void main(String[] args) throws IOException {
+        String imagePath = "src/main/resources/input/drawing_sample.jpg";
+        PdfConverter converter = new PdfConverter();
+        FileOutputStream output = new FileOutputStream(converter.convertImageToPdf(imagePath));
+        output.close();
     }
 }
